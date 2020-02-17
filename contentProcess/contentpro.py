@@ -8,21 +8,50 @@ def getSynonym(topn=5,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/s
     Vectors = []
     for t in s:
         a = t.split(' ')
-        Words.append(a)
+        Words.append(a[0])
         Vectors.append([float(a[i]) for i in range(1,len(a))])
     Vectors = np.array(Vectors)
     T = []
+    Vectors = Vectors.transpose()
     for t in S:
         a = t.split('\t')
         w = a[3].strip()
         syn = []
         if w in Words:
-            v0 = Vectors[Words.index(w)]
+            v0 = Vectors[:,Words.index(w)]
+            v0 = v0.reshape((1,len(v0)))
             sim = np.dot(v0,Vectors)
-            x = [[Words[i],sim[i]] for i in range(len(Words))]
+            x = [[Words[i],sim[0][i]] for i in range(len(Words))]
             x = sorted(x,key=lambda x:-x[1])
-            syn = [x[i][1] for i in range(1,topn+1)]
+            syn = [x[i][0] for i in range(1,topn+1)]
+            print('\t'.join([x[i][0] for i in range(topn+1)]))
         a = a+syn
         T.append(a)
+    T = ['\t'.join(t) for t in T]
     with open('../data/beauty.table1.txt','w') as f:
         f.write('\n'.join(T))
+if 1:
+    scId = ''
+    sc0 = ''
+    sc1 = ''
+    S = []
+    words_origin = []
+    words_new = []
+    for t in T:
+        s = t.split('\t')
+        if s[0]!=scId and scId!='' and len(words_new)>0:
+            words_new1 = [w for w in words_new if w not in words_origin]
+            words_new1 = list(set(words_new1))
+            if len(words_new1)>0:
+                S.append(scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_origin)+'\n'+scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_new1)+'\n')
+            words_origin = []
+            words_new = []
+        scId = s[0]
+        sc0 = s[1]
+        sc1 = s[2]
+        words_origin.append(s[3])
+        words_new.extend(s[4:])
+    if s[0] != scId and scId != '' and len(words_new) > 0:
+        S.append(scId + '\t' + sc0 + '\t' + sc1 + '\t' + '#'.join(words_origin) + '\n' + '#'.join(words_new))
+    with open('../data/beauty.table2.txt','w') as f:
+        f.write('\n'.join(S))
