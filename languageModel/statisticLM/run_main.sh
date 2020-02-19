@@ -19,4 +19,7 @@ nohup sh run_join_join.sh $input $output >> ./log/day-$date.log 2>&1 &
 
 input=VpaOutput_guobk/data_LM/ngram_all1/p*
 output=VpaOutput_guobk/data_LM/ngram_all2
-nohup sh run_filter.sh $input $output >> ./log/day-all1.log 2>&1 &
+
+input=VpaOutput_guobk/data_LM/ngram_all2/p*
+output=VpaOutput_guobk/data_LM/ngram_all3
+nohup sh run_filter.sh $input $output >> ./log/day-all3.log 2>&1 &

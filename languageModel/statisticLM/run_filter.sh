@@ -3,7 +3,7 @@ hpoutput=$2
 hadoop fs -rmr $hpoutput
 hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
     -D stream.non.zero.exit.is.failure=false \
-    -D mapred.reduce.tasks=50 \
+    -D mapred.reduce.tasks=1 \
     -D mapred.map.tasks=5 \
     -D mapred.task.timeout=86400000 \
     -D mapreduce.map.memory.mb=2048 \
