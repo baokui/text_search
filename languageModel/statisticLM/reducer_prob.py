@@ -16,7 +16,7 @@ for data in sys.stdin:
         if last_key != 'null':
             for s in S:
                 t = s[1]/(nb+0.0)
-                t = '\t'.join([t[0],str(t[1]),str(t[2])])
+                t = '\t'.join([s[0],str(s[1]),str(t)])
                 sys.stdout.write("%s\n" % t)
         nb = 0
         S = []
