@@ -23,3 +23,7 @@ output=VpaOutput_guobk/data_LM/ngram_all2
 input=VpaOutput_guobk/data_LM/ngram_all2/p*
 output=VpaOutput_guobk/data_LM/ngram_all3
 nohup sh run_filter.sh $input $output >> ./log/day-all3.log 2>&1 &
+
+input=VpaOutput_guobk/data_LM/ngram_all3/p*
+output=VpaOutput_guobk/data_LM/ngram_all_prob
+nohup sh run_filter.sh $input $output >> ./log/day-all-prob.log 2>&1 &
