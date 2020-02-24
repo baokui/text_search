@@ -1,5 +1,5 @@
 import numpy as np
-def getSynonym(topn=5,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/search/odin/guobk/streaming/vpa/vpa-data-process/UserInput/word2vec128/model-mean'):
+def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/search/odin/guobk/streaming/vpa/vpa-data-process/UserInput/word2vec128/model-mean'):
     with open(path_mutiReplace,'r') as f:
         S = f.read().strip().split('\n')
     with open(path_w2v,'r') as f:
@@ -30,7 +30,6 @@ def getSynonym(topn=5,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/s
     T = ['\t'.join(t) for t in T]
     with open('../data/beauty.table1.txt','w') as f:
         f.write('\n'.join(T))
-if 1:
     scId = ''
     sc0 = ''
     sc1 = ''
