@@ -54,3 +54,7 @@ def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/
         S.append(scId + '\t' + sc0 + '\t' + sc1 + '\t' + '#'.join(words_origin) + '\n' + '#'.join(words_new))
     with open('../data/beauty.table2.txt','w') as f:
         f.write('\n'.join(S))
+def main():
+    getSynonym(topn=10)
+if __name__=="__main__":
+    main()
