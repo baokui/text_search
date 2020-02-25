@@ -23,13 +23,14 @@ def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/
             sim = np.dot(v0,Vectors)
             x = [[Words[i],sim[0][i]] for i in range(len(Words))]
             x = sorted(x,key=lambda x:-x[1])
-            syn = [x[i][0] for i in range(1,topn+1)]
+            syn = [x[i][0]+'/'+'%0.4f'%x[i][1] for i in range(1,topn+1)]
             print('\t'.join([x[i][0] for i in range(topn+1)]))
         a = a+syn
         T.append(a)
     T = ['\t'.join(t) for t in T]
     with open('../data/beauty.table1.txt','w') as f:
         f.write('\n'.join(T))
+    print('re-sort for symwords....')
     scId = ''
     sc0 = ''
     sc1 = ''
@@ -39,9 +40,18 @@ def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/
     for t in T:
         s = t.split('\t')
         if s[0]!=scId and scId!='' and len(words_new)>0:
-            words_new1 = [w for w in words_new if w not in words_origin]
-            words_new1 = list(set(words_new1))
+            words_new1 = [w for w in words_new if w.split('/')[0] not in words_origin]
             if len(words_new1)>0:
+                D = {}
+                for w in words_new1:
+                    x = w.split('/')
+                    if x[0] in D:
+                        D[x[0]] = min(D[x[0]], float(x[1]))
+                    else:
+                        D[x[0]] = float(x[1])
+                D = [(k, D[k]) for k in D]
+                D = sorted(D, key=lambda x: -x[1])
+                words_new1 = [k[0] + '/' + str(k[1]) for k in D]
                 S.append(scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_origin)+'\n'+scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_new1)+'\n')
             words_origin = []
             words_new = []
