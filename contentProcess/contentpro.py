@@ -39,20 +39,21 @@ def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/
     words_new = []
     for t in T:
         s = t.split('\t')
-        if s[0]!=scId and scId!='' and len(words_new)>0:
-            words_new1 = [w for w in words_new if w.split('/')[0] not in words_origin]
-            if len(words_new1)>0:
-                D = {}
-                for w in words_new1:
-                    x = w.split('/')
-                    if x[0] in D:
-                        D[x[0]] = min(D[x[0]], float(x[1]))
-                    else:
-                        D[x[0]] = float(x[1])
-                D = [(k, D[k]) for k in D]
-                D = sorted(D, key=lambda x: -x[1])
-                words_new1 = [k[0] + '/' + str(k[1]) for k in D]
-                S.append(scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_origin)+'\n'+scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_new1)+'\n')
+        if s[0]!=scId and scId!='':
+            if len(words_new)>0:
+                words_new1 = [w for w in words_new if w.split('/')[0] not in words_origin]
+                if len(words_new1)>0:
+                    D = {}
+                    for w in words_new1:
+                        x = w.split('/')
+                        if x[0] in D:
+                            D[x[0]] = min(D[x[0]], float(x[1]))
+                        else:
+                            D[x[0]] = float(x[1])
+                    D = [(k, D[k]) for k in D]
+                    D = sorted(D, key=lambda x: -x[1])
+                    words_new1 = [k[0] + '/' + str(k[1]) for k in D]
+                    S.append(scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_origin)+'\n'+scId+'\t'+sc0+'\t'+sc1+'\t'+'#'.join(words_new1)+'\n')
             words_origin = []
             words_new = []
         scId = s[0]
