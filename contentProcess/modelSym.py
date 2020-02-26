@@ -86,7 +86,7 @@ def symInput():
     files = os.listdir(path0)
     N = 0
     n = 0
-    thr = 0.95
+    thr = 0.6
     for file in files:
         for p in range(5):
             print(os.path.join(path0,file,'part-0000'+str(p)))
@@ -102,7 +102,7 @@ def symInput():
                     continue
                 w,sim = simCompute(s)
                 if sim>thr:
-                    f.write(w+'\t'+s+'\n')
+                    f.write(w+'\t'+s+'\t'+str(sim)+'\n')
                     n+=1
             f_r.close()
     f.close()
