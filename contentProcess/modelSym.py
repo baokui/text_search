@@ -98,6 +98,8 @@ def symInput():
                     print("read %d lines and extracted %d sentences"%(N,n))
                 if s in Words:
                     continue
+                if len(s.decode('utf-8'))>10:
+                    continue
                 w,sim = simCompute(s)
                 if sim>thr:
                     f.write(w+'\t'+s+'\n')
