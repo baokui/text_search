@@ -82,29 +82,28 @@ def symInput():
     Vectors = Vectors.transpose()
 
     f = open('result.txt','w')
-    path0 = "data/20200220"
+    path0 = "data"
     files = os.listdir(path0)
     N = 0
     n = 0
     thr = 0.6
     for file in files:
-        for p in range(5):
-            print(os.path.join(path0,file,'part-0000'+str(p)))
-            f_r = open(os.path.join(path0,file,'part-0000'+str(p)),'r')
-            for line in f_r:
-                s = line.strip()
-                N+=1
-                if N%10000==0:
-                    print("read %d lines and extracted %d sentences"%(N,n))
-                if s in Words:
-                    continue
-                if len(s.decode('utf-8'))>10:
-                    continue
-                w,sim = simCompute(s)
-                if sim>thr:
-                    f.write(w+'\t'+s+'\t'+str(sim)+'\n')
-                    n+=1
-            f_r.close()
+        print(os.path.join(path0,file))
+        f_r = open(os.path.join(path0,file),'r')
+        for line in f_r:
+            s = line.strip().split('\t')[3]
+            N+=1
+            if N%10000==0:
+                print("read %d lines and extracted %d sentences"%(N,n))
+            if s in Words:
+                continue
+            if len(s.decode('utf-8'))>10:
+                continue
+            w,sim = simCompute(s)
+            if sim>thr:
+                f.write(w+'\t'+s+'\t'+str(sim)+'\n')
+                n+=1
+        f_r.close()
     f.close()
 if __name__=='__main__':
     symInput()
