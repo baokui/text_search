@@ -2,11 +2,6 @@ userid=$1
 input1=$2
 input2=$3
 input3=$4
-input4=$5
-input5=$6
-input6=$7
-input7=$8
-Date=$9
 hpoutput=VpaOutput_guobk/userhistory_godText/user_join/$Date/user_$userid/
 hadoop fs -rmr $hpoutput
 hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
