@@ -8,7 +8,7 @@ def main(path_keywords):
             continue
         f = open(os.path.join(path_keywords,file))
         for line in f:
-            line = f.strip().split('\t')
+            line = line.strip().split('\t')
             if len(line)!=2:
                 continue
             if line[0] not in D:
