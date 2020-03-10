@@ -16,9 +16,6 @@ hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
     -input $input2 \
     -input $input3 \
     -input $input4 \
-    -input $input5 \
-    -input $input6 \
-    -input $input7 \
     -output $hpoutput \
     -mapper "python mapper1.py" \
     -reducer "python reducer1.py"
