@@ -1,6 +1,6 @@
 import os
 import sys
-def main(path_keywords):
+def main(path_keywords,max_nb=10000):
     files = os.listdir(path_keywords)
     D = {}
     for file in files:
@@ -18,7 +18,7 @@ def main(path_keywords):
         f.close()
     R = [(k,D[k]) for k in D]
     R = sorted(R,key=lambda x:-x[1])
-    S = [R[i][0] for i in range(min(len(R),3000))]
+    S = [R[i][0] for i in range(min(len(R),max_nb))]
     with open('keywords.txt','w') as f:
         f.write('\n'.join(S))
 if __name__=='__main__':
