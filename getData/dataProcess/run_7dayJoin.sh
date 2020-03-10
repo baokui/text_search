@@ -1,4 +1,4 @@
-rootpath=/search/odin/guobk/streaming/vpa/text_search/getdata
+rootpath=/search/odin/guobk/streaming/vpa/text_search/getData
 echo ------------------------------------------------------------------------------------------------
 echo "BEGIN imagemix data update in $(date "+%Y-%m-%d %H:%M:%S")"
 nDay=1
