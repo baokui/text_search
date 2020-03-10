@@ -47,3 +47,21 @@ def getCorpus():
         f.write('\n\n'.join(Trn))
     with open('data/valid.txt','w',encoding='utf-8') as f:
         f.write('\n\n'.join(Tst))
+def get_godText():
+    path_content = "D:\\项目\\输入法\\神配文数据\\ns_flx_wisdom_words.xlsx"
+    # 读取excel表格
+    workbook = xlrd.open_workbook(path_content)  # 打开excel文件
+    table = workbook.sheet_by_name('ns_flx_wisdom_words')  # 将文件内容表格化
+    rows_num = table.nrows  # 获取行
+    cols_num = table.ncols  # 获取列
+
+    res = []  # 定义一个数组
+    for rows in range(rows_num):
+        r = []
+        for cols in range(cols_num):
+            r.append(table.cell(rows, cols).value)  # 获取excel中单元格的内容
+        res.append(r)
+    corpus0 = []
+    for i in range(0, len(res)):
+        str0 = res[i][1].lower()
+        corpus0.append(str0)
