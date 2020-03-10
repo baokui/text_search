@@ -3,7 +3,7 @@ import time
 for data in sys.stdin:
     data = data.strip()
     fields = data.split('\t')
-    if len(fields) != 10:
+    if len(fields) != 11:
         continue
     [_, Time, userid, rc, AC, query, CI, iC, Post, _, dialogue] = fields
     if userid[-1]!='9':
