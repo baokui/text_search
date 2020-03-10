@@ -1,6 +1,6 @@
 import os
 import sys
-def main(path_keywords,max_nb=10000):
+def main(path_keywords,max_nb=5000):
     files = os.listdir(path_keywords)
     D = {}
     for file in files:
