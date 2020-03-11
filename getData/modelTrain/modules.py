@@ -54,7 +54,7 @@ def feature_global(files,config_global):
     r_sc_ac76 = [nb_sc_ac76[i] / (nb_sc_ac1[i] + 0.01) for i in range(len(nb_sc_ac1))]
     r_time_ac76 = [nb_time_ac76[i] / (nb_time_ac1[i] + 0.01) for i in range(len(nb_time_ac1))]
     return r_ac76,r_sc_ac76,r_time_ac76
-def feature_user(files):
+def feature_user(files,Sc):
     def getdata(filepath):
         d = {}
         f = open(filepath,'r')
@@ -63,7 +63,15 @@ def feature_user(files):
             line = line.strip()
             s = line.split('\t')
             userid = s[0]
-            x = [float(ss) for ss in s[1:]]
+            x_all = [float(s[1])]
+            x_sc = [0 for _ in range(len(Sc))]
+            tmp = s[2].split('[&]')
+            for tt in tmp:
+                dd = tt.split('[=]')
+                if dd[0] in Sc:
+                    x_sc[Sc.index(dd[0])] = float(dd[1])
+            x_time = [float(tt) for tt in s[3].split('[&]')]
+            x = x_all+x_sc+x_time
             d[userid] = np.array(x)
             line = f.readline()
         f.close()
@@ -122,11 +130,11 @@ def iterData(files,D_user,D_other,r_sc_all,r_time_all,punc=set('?!.,？！。，
                 time_slot = np.zeros((len(r_time_all),))
                 time_slot[timeIndex] = 1.0
                 sc = np.zeros((len(r_sc_all),))
-                scIndex = int(s[3])
-                if scIndex>=len(r_sc_all):
-                    line = f.readline()
-                    continue
-                sc[scIndex] = 1.0
+                scIndexs = [int(tt) for tt in s[3].split('#')]
+                for scIndex in scIndexs:
+                    if scIndex < len(sc):
+                        sc[scIndex] = 1.0
+                #inputStr = s[4].decode('utf-8')
                 inputStr = s[4]
                 pun_appear = int(sum([int(p in inputStr) for p in punc])>0)
                 feature_session = [hour] + [interval_last_76] + list(sc) + list(time_slot) + [len(inputStr)] + [pun_appear]
@@ -135,7 +143,8 @@ def iterData(files,D_user,D_other,r_sc_all,r_time_all,punc=set('?!.,？！。，
                 if userid not in D_user:
                     feature_user = D_other
                 else:
-                    feature_user = userFeatureParse(D_user[userid],nb_features_user,T_len,len(r_sc_all))
+                    feature_user = D_user[userid]
+                    #feature_user = userFeatureParse(D_user[userid],nb_features_user,T_len,len(r_sc_all))
                 ####################################
                 r_sc_all_ = r_sc_all[scIndex]
                 feature_global = np.array([r_sc_all_,r_time_all[timeIndex]])

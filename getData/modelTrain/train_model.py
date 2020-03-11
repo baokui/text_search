@@ -27,16 +27,22 @@ class Config_train(object):
         self.step_saveckpt = 100
         self.testlines = 5000000
 config_model = modelconfig()
-Sc,_ = config_model.get_sc()
-def data_initial(path_global,path_user,users,path_userData='userData'):
-    if os.path.exists(path_userData):
+Sc = config_model.get_sc()
+def data_initial(path_global,path_user,user,Sc,resultpath):
+    if not os.path.exists(os.path.exists(os.path.join(resultpath,'tmpdata'))):
+        os.mkdir(os.path.join(resultpath,'tmpdata'))
+    if os.path.exists(os.path.join(resultpath,'tmpdata',user+'list.npy')):
         print('data-initial of userdata from exist data...')
-        userlist = np.load(path_userData + '/' + users[0] + 'list.npy')
-        userdata = np.load(path_userData + '/' + users[0] + 'data.npy')
+        userlist = np.load(os.path.join(resultpath,'tmpdata',user+'list.npy'))
+        userdata = np.load(os.path.join(resultpath,'tmpdata',user+'list.npy'))
         D_user = {userlist[i]: userdata[i] for i in range(len(userlist))}
     else:
-        feature_user = [os.path.join(path_user, path) for path in users]
-        D_user = modules.feature_user(feature_user)
+        feature_user = [os.path.join(path_user, user)]
+        D_user = modules.feature_user(feature_user,Sc)
+        List = [k for k in D_user]
+        Data = [D_user[List[i]] for  i in range(len(List))]
+        np.save(os.path.join(resultpath,'tmpdata',user+'list.npy'),List)
+        np.save(os.path.join(resultpath,'tmpdata',user+'data.npy'),Data)
     path_globalData = os.path.join(resultpath,'tmpdata','data_global.npy')
     if os.path.exists(path_globalData):
         data_global = np.load(path_globalData)
@@ -49,10 +55,8 @@ def data_initial(path_global,path_user,users,path_userData='userData'):
         r_all, r_sc_all, r_time_all = modules.feature_global(feature_global, config_model)
         data_global = [r_all] + r_sc_all + r_time_all
         np.save(path_globalData,data_global)
-        r_sc_all = np.array(r_sc_all)
-        r_time_all = np.array(r_time_all)
     return r_all,r_sc_all,r_time_all,D_user
-def train(path_global,path_user,path_session, path_session_test,resultpath,model,path_userData='userData',joining=False):
+def train(path_global,path_user,path_session, resultpath,model,joining=False):
     config_train=Config_train()
     config_model=modelconfig()
     config_train.feature_dim = config_model.get_nb_features()[0]
@@ -86,11 +90,12 @@ def train(path_global,path_user,path_session, path_session_test,resultpath,model
         datapath = modules.get_sessionfile(os.path.join(path_session,path))
         print('training on '+ path)
         time0 = time.time()
-        users = [path]
-        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,path_userData)
+        users = path
+        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,Sc)
         D_other = [r_all] + r_sc_all + r_time_all
         iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.train_batch_size, rate_skip = config_train.skip_rate,rate_skip_neg=1-r_all,config_global=config_model,joining=joining)
         epoch = 0
+        loss_ = 0
         while epoch<config_train.epochs:
             data = next(iter)
             if data == '__STOP__':
@@ -102,7 +107,8 @@ def train(path_global,path_user,path_session, path_session_test,resultpath,model
             y0 = np.reshape(y0,(len(y0),1))
             if step%config_train.step_saveckpt==0:
                 saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
-            session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
+                print('loss in step-{} is {}'.format(step,loss_))
+            _,loss_, = session.run([train_op,loss],feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
             step += 1
         completed += 1
         KK = len(data_train) - completed
@@ -224,22 +230,6 @@ def predict(path_global,path_user,path_session,resultpath,model,path_ckpt='',pat
         modules.print_result(predictpaths[i], savepaths[i])
 if __name__=='__main__':
     mode = sys.argv[1]
-    model = sys.argv[2]
-    path_global = sys.argv[3]
-    path_user = sys.argv[4]
-    path_session = sys.argv[5]
-    path_session_test = sys.argv[6]
-    resultpath = sys.argv[7]
-    path_userData = sys.argv[8]
-    joining=False
-    if len(sys.argv) > 9:
-        joining = bool(int(sys.argv[9]))
-    path_ckpt = ''
-    if len(sys.argv)>10:
-        path_ckpt = sys.argv[10]
+    path_global, path_user, path_session, resultpath, model = sys.argv[2:]
     if mode=='train':
-        train(path_session, resultpath, model,joining=joining)
-    elif mode=='test':
-        test(path_global,path_user,path_session_test,resultpath,model,path_ckpt='',joining=joining,path_userData=path_userData)
-    elif mode=='predict':
-        predict(path_global, path_user, path_session_test, resultpath, model, path_ckpt,joining=joining, path_userData=path_userData)
+        train(path_global,path_user,path_session, resultpath,model)
