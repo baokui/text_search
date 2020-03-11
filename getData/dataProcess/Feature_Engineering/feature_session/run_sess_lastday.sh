@@ -14,5 +14,5 @@ day=`date -d "$nDayd day ago" +"%d"`
 echo "------feature extracting - session from user_join to VpaOutput_guobk/userhistory_imagemix/feature/feature_session"
 #session feature 每天都提取，每天只提取上一天的数据
 sh run_main_eachday.sh $curYear $curMonth $curDay
-hadoop fs -rmr VpaOutput_guobk/userhistory_imagemix/feature/feature_session/$year$month/$day/
+hadoop fs -rmr VpaOutput_guobk/userhistory_godText/feature/feature_session/$year$month/$day/
 echo "END session feature getting in $(date "+%Y-%m-%d %H:%M:%S")"
