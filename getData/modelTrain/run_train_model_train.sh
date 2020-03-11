@@ -8,4 +8,4 @@ model=lr
 mkdir $resultpath
 mode=train
 mkdir log
-nohup python -u train_model $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log 2>&1 &
+nohup python -u train_model.py $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log 2>&1 &
