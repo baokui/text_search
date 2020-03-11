@@ -29,7 +29,7 @@ class Config_train(object):
 config_model = modelconfig()
 Sc = config_model.get_sc()
 def data_initial(path_global,path_user,user,Sc,resultpath):
-    if not os.path.exists(os.path.exists(os.path.join(resultpath,'tmpdata'))):
+    if not os.path.exists(os.path.join(resultpath,'tmpdata')):
         os.mkdir(os.path.join(resultpath,'tmpdata'))
     if os.path.exists(os.path.join(resultpath,'tmpdata',user+'list.npy')):
         print('data-initial of userdata from exist data...')
