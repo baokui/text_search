@@ -136,27 +136,6 @@ def test(path_global,path_user,path_session, resultpath,model,joining=False):
     else:
         print('no model')
         return
-    learning_rate_ = config_train.learning_rate
-    step = 0
-    completed = 0
-    data_train = os.listdir(path_session)
-    usernb = 0
-    for path in data_train:
-        usernb += 1
-        datapath = modules.get_sessionfile(os.path.join(path_session,path))
-        print('training on '+ path)
-        time0 = time.time()
-        users = path
-        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,Sc,resultpath)
-        D_other = [r_all] + r_sc_all + r_time_all
-        iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.testlines, rate_skip = config_train.skip_rate,rate_skip_neg=0,config_global=config_model,joining=joining)
-        data = next(iter)
-        x0, y0 = data
-        feed_dict = {X_holder: x0, learning_rate: learning_rate_}
-        yp = session.run(predict_y,feed_dict=feed_dict)
-        yp = [yp[i][0] for i in range(len(yp))]
-        auc = modules.calAUC(prob=yp, labels=y0)
-        print('ckpt is {} with auc is {}'.format(ckpt_file,auc))
     ckpt_backup = os.path.join(resultpath, "ckpt_backup")
     if not os.path.exists(ckpt_backup):
         os.mkdir(ckpt_backup)
@@ -228,11 +207,9 @@ def test(path_global,path_user,path_session, resultpath,model,joining=False):
     return auc, predictpaths
 
 
-def predict(path_global, path_user, path_session, resultpath, model, path_ckpt='', path_userData='userData',
-            joining=False):
+def predict(path_global, path_user, path_session, resultpath, model,joining=False):
     ####################################################
-    auc, predictpaths = test(path_global, path_user, path_session, resultpath, model, path_userData=path_userData,
-                             joining=joining)
+    auc, predictpaths = test(path_global,path_user,path_session, resultpath,model)
     savepaths = [predictpath.replace('predict', 'result') for predictpath in predictpaths]
     for i in range(len(savepaths)):
         modules.print_result(predictpaths[i], savepaths[i])
@@ -242,4 +219,4 @@ if __name__=='__main__':
     if mode=='train':
         train(path_global,path_user,path_session, resultpath,model)
     if mode=='test':
-        test(path_global,path_user,path_session, resultpath,model)
+        predict(path_global,path_user,path_session, resultpath,model)
