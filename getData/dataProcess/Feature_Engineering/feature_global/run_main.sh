@@ -1,5 +1,5 @@
 ##########################################################
-nDay=1
+nDay=$1
 curYear=`date -d "$nDay day ago" +"%Y"`
 curMonth=`date -d "$nDay day ago" +"%m"`
 curDay=`date -d "$nDay day ago" +"%d"`

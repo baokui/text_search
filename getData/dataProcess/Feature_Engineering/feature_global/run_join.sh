@@ -10,7 +10,7 @@ hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
     -D mapred.task.timeout=86400000 \
     -D mapreduce.map.memory.mb=2048 \
     -D mapreduce.reduce.memory.mb=2048 \
-    -files mapper.py,reducer.py,table-trigger.txt,table-search-caption.txt \
+    -files mapper.py,reducer.py,keywords.txt \
     -input $input1 \
     -output $hpoutput \
     -mapper "python mapper.py" \
