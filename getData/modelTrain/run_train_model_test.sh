@@ -6,4 +6,7 @@ modelversion=model20200309
 resultpath=$rootpath/$modelversion
 model=lr
 mode=test
-nohup python -u train_model.py $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log 2>&1 &
+for((i=0;i<1000;i++))
+do
+python -u train_model.py $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log
+done

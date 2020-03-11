@@ -25,7 +25,7 @@ class Config_train(object):
         self.epochs = 1
         self.CKPT_path = 'ckpt'
         self.step_saveckpt = 100
-        self.testlines = 30000
+        self.testlines = 300000
 config_model = modelconfig()
 Sc = config_model.get_sc()
 def data_initial(path_global,path_user,user,Sc,resultpath):
