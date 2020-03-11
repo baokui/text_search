@@ -25,7 +25,7 @@ class Config_train(object):
         self.epochs = 1
         self.CKPT_path = 'ckpt'
         self.step_saveckpt = 100
-        self.testlines = 1000000
+        self.testlines = 10000
 config_model = modelconfig()
 Sc = config_model.get_sc()
 def data_initial(path_global,path_user,user,Sc,resultpath):
@@ -102,7 +102,7 @@ def train(path_global,path_user,path_session, resultpath,model,joining=False):
                 iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.train_batch_size, rate_skip=1-r_all,config_global=config_model,joining=joining)
                 epoch += 1
                 continue
-            x0, y0 = data
+            x0, y0, _ = data
             y0 = np.array(y0)
             y0 = np.reshape(y0,(len(y0),1))
             if step%config_train.step_saveckpt==0:
@@ -157,9 +157,82 @@ def test(path_global,path_user,path_session, resultpath,model,joining=False):
         yp = [yp[i][0] for i in range(len(yp))]
         auc = modules.calAUC(prob=yp, labels=y0)
         print('ckpt is {} with auc is {}'.format(ckpt_file,auc))
-def predict(path_global,path_user,path_session,resultpath,model,path_ckpt='',path_userData='userData',joining=False,user_idx='a'):
+    ckpt_backup = os.path.join(resultpath, "ckpt_backup")
+    if not os.path.exists(ckpt_backup):
+        os.mkdir(ckpt_backup)
+    tmpfile = ckpt_file
+    cfile = tmpfile + ".*"
+    cmdstr = "cp " + cfile + " " + ckpt_backup
+    os.system(cmdstr)
+
+    idx = ckpt_file.find('model.ckpt-') + len('model.ckpt-')
+    if not os.path.exists(os.path.join(resultpath, 'test')):
+        os.mkdir(os.path.join(resultpath, 'test'))
+    predictpath0 = os.path.join(resultpath, 'test', 'predict' + ckpt_file[idx:])
+
+    learning_rate_ = config_train.learning_rate
+    data_train = os.listdir(path_session)
+    auc = 0
+    auc_each = []
+    predictpaths = []
+    for path in data_train:
+        predictpath = predictpath0 + '-' + path + '.txt'
+        datapath = modules.get_sessionfile(os.path.join(path_session, path))
+        users = path
+        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global, path_user, users, Sc, resultpath)
+        D_other = [r_all] + r_sc_all + r_time_all
+        iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all, batch_size=config_train.testlines,
+                                rate_skip=config_train.skip_rate, rate_skip_neg=0, config_global=config_model,
+                                joining=joining)
+        data = next(iter)
+        X, y, user = data
+        y = np.array(y)
+        y = np.reshape(y, (len(y), 1))
+        y_p = []
+        batch_size = config_train.train_batch_size
+        i = 0
+        while i * batch_size < len(y):
+            X_test = X[i * batch_size:(i + 1) * batch_size]
+            y_test = y[i * batch_size:(i + 1) * batch_size]
+            y_p0 = session.run(predict_y, feed_dict={X_holder: X_test, y_holder: y_test, learning_rate: learning_rate_})
+            y_p.append(y_p0)
+            i += 1
+        y_p = np.concatenate(y_p)
+        tmp = ['\t'.join([user[ii], str(int(y[ii][0])), str(y_p[ii][0])]) for ii in range(len(y))]
+        with open(predictpath, 'w') as f:
+            f.write('\n'.join(tmp))
+        auctmp = modules.getAUC(predictpath)
+        auc += auctmp
+        auc_each.append('%0.4f' % auctmp)
+        predictpaths.append(predictpath)
+        print('testing on file %s with auc = %0.4f and ckptfile is %s' % (
+        os.path.join(path_session, path), auctmp, ckpt_file))
+    auc = auc / len(data_train)
+    print('testing on path %s with average auc = %0.4f and ckptfile is %s' % (path_session, auc, ckpt_file))
+    if os.path.exists(os.path.join(resultpath, 'test-auc-ckpt.txt')):
+        with open(os.path.join(resultpath, 'test-auc-ckpt.txt'), 'r') as f:
+            stmp = f.read().strip().split('\n')
+        auc0 = float(stmp[-1].split('\t')[0])
+    else:
+        stmp = []
+        auc0 = 0
+    if auc > auc0:
+        stmp.append('%0.4f' % auc + '\t' + '\t'.join(auc_each) + '\t' + tmpfile)
+        with open(os.path.join(resultpath, 'test-auc-ckpt.txt'), 'w') as f:
+            f.write('\n'.join(stmp))
+    else:
+        tmpfile = tmpfile.replace('/ckpt/', '/ckpt_backup/')
+        os.remove(tmpfile + ".meta")
+        os.remove(tmpfile + ".index")
+        os.remove(tmpfile + ".data-00000-of-00001")
+    return auc, predictpaths
+
+
+def predict(path_global, path_user, path_session, resultpath, model, path_ckpt='', path_userData='userData',
+            joining=False):
     ####################################################
-    auc,predictpaths=test(path_global,path_user,path_session,resultpath,model,path_ckpt,path_userData,joining,user_idx)
+    auc, predictpaths = test(path_global, path_user, path_session, resultpath, model, path_userData=path_userData,
+                             joining=joining)
     savepaths = [predictpath.replace('predict', 'result') for predictpath in predictpaths]
     for i in range(len(savepaths)):
         modules.print_result(predictpaths[i], savepaths[i])

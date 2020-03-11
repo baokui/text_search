@@ -97,6 +97,7 @@ def iterData(files,D_user,D_other,r_sc_all,r_time_all,punc=set('?!.,？！。，
     nb_features, nb_features_session, nb_features_user, nb_features_global=config_global.get_nb_features()
     X = []
     y = []
+    users = []
     k = 0
     for epoch in range(epochs):
         for file in files:
@@ -160,12 +161,14 @@ def iterData(files,D_user,D_other,r_sc_all,r_time_all,punc=set('?!.,？！。，
                 x = np.concatenate((feature_session, feature_user, feature_global, feature_platform))
                 X.append(x)
                 y.append(float(s[-1]))
+                users.append(userid)
                 if len(y)%10000==0:
                     print('get %d lines'%len(y))
                 if len(X)==batch_size:
-                    yield X,y
+                    yield X,y,users
                     X = []
                     y = []
+                    users = []
                 line = f.readline()
                 k += 1
                 if k>=max_line:
