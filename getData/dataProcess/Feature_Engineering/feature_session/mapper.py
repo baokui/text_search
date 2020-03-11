@@ -4,29 +4,23 @@
 import sys
 import time
 import random
-def getSc():
-    with open('table-trigger.txt') as f:
-        S = [w.strip() for w in f]
-    S = [a.split('\t') for a in S]
-    L0 = [a[1] for a in S]
-    L0 = list(set(L0))
-    D_tr2sr = {a[0]:a[1] for a in S}
-    with open('table-search-caption.txt') as f:
-        L1 = [w.strip() for w in f]
-    L1 += ['others']
-    return L0,L1,D_tr2sr
-L0,L1,D_tr2sr = getSc()
-def getScIndex(Str):
-    if Str in D_tr2sr:
-        idx_sc = L0.index(D_tr2sr[Str])
-    else:
-        idx_sc1 = len(L1)-1
-        for i in range(len(L1)-1):
-            if L1[i] in Str:
-                idx_sc1 = i
-                break
-        idx_sc = len(L0)+idx_sc1
-    return idx_sc
+def getkeywords():
+    with open('keywords.txt') as f:
+        keywords = f.read().strip().split()
+    return keywords
+keywords = getkeywords()
+keywords.append('otherwords')
+def getScIndex(inputStr):
+    flag = 0
+    idx = []
+    for i in range(len(keywords)-1):
+        w = keywords[i]
+        if w in inputStr:
+            idx.append(str(i))
+            flag += 1
+    if flag == 0:
+        idx.append(str(len(keywords)-1))
+    return idx
 def date_to_timestamp(date, format_string="%Y-%m-%d %H:%M:%S"):
     T = [i for i in range(25)]
     time_array = time.strptime(date, format_string)
@@ -64,7 +58,7 @@ for data in sys.stdin:
         else:
             relative_time = abs_time - abs_time_last76
         feature.append(str(int(relative_time<24)))#time interval from last click
-        sc_index = str(getScIndex(act[2]))
+        sc_index = '#'.join(getScIndex(act[2]))
         feature.append(sc_index)# scene index
         feature.append(act[2]) # user input
         X.append(feature) #[hour,timeIndex,time-interval-lastclick,scene,userInput]

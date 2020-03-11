@@ -2,8 +2,8 @@ year=$1
 month=$2
 day=$3
 file=$4
-input1=VpaOutput_guobk/userhistory_imagemix/user_$file/$year$month/$day/part*
-hpoutput=VpaOutput_guobk/userhistory_imagemix/feature/feature_session/$year$month/$day/user_$file/
+input1=VpaOutput_guobk/userhistory_godText/user_$file/$year$month/$day/part*
+hpoutput=VpaOutput_guobk/userhistory_godText/feature/feature_session/$year$month/$day/user_$file/
 hadoop fs -rmr $hpoutput
 hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
     -D stream.non.zero.exit.is.failure=false \
