@@ -91,7 +91,7 @@ def train(path_global,path_user,path_session, resultpath,model,joining=False):
         print('training on '+ path)
         time0 = time.time()
         users = path
-        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,Sc)
+        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,Sc,resultpath)
         D_other = [r_all] + r_sc_all + r_time_all
         iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.train_batch_size, rate_skip = config_train.skip_rate,rate_skip_neg=1-r_all,config_global=config_model,joining=joining)
         epoch = 0
