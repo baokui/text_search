@@ -34,7 +34,7 @@ def data_initial(path_global,path_user,user,Sc,resultpath):
     if os.path.exists(os.path.join(resultpath,'tmpdata',user+'list.npy')):
         print('data-initial of userdata from exist data...')
         userlist = np.load(os.path.join(resultpath,'tmpdata',user+'list.npy'))
-        userdata = np.load(os.path.join(resultpath,'tmpdata',user+'list.npy'))
+        userdata = np.load(os.path.join(resultpath,'tmpdata',user+'data.npy'))
         D_user = {userlist[i]: userdata[i] for i in range(len(userlist))}
     else:
         feature_user = [os.path.join(path_user, user)]
