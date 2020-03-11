@@ -52,7 +52,7 @@ for data in sys.stdin:
             Num_ac76 += 1
             D_time_ac76[T[timeIndex]] += 1
     rate_all = Num_ac76 / (Num_ac1 + 0.1)
-    rate_each_sc = ['[=]'.join([d,'%0.6f'%(D_sc_ac76[d]/D_sc_ac1[d])]) for d in D_sc_ac76 if D_sc_ac76[d]>0]
+    rate_each_sc = ['[=]'.join([d,'%0.6f'%(D_sc_ac76[d]/float(D_sc_ac1[d]))]) for d in D_sc_ac76 if D_sc_ac76[d]>0]
     rate_each_time = ['%0.6f'%(D_time_ac76[T[i]] / (D_time_ac1[T[i]] + 0.1)) for i in range(len(T))]
     X_user = ['%0.6f'%rate_all,'[&]'.join(rate_each_sc),'[&]'.join(rate_each_time)]
     S = [userid]+X_user
