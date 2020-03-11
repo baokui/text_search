@@ -160,6 +160,8 @@ def iterData(files,D_user,D_other,r_sc_all,r_time_all,punc=set('?!.,？！。，
                 x = np.concatenate((feature_session, feature_user, feature_global, feature_platform))
                 X.append(x)
                 y.append(float(s[-1]))
+                if len(y)%10000==0:
+                    print('get %d lines'%len(y))
                 if len(X)==batch_size:
                     yield X,y
                     X = []
