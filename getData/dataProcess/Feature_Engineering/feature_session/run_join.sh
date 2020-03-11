@@ -1,7 +1,7 @@
 file=$1
 part=$2
-input1=VpaOutput_guobk/userhistory_imagemix/user_join/user_$file/part-$part
-hpoutput=VpaOutput_guobk/userhistory_imagemix/feature/feature_session/user_$file/$part/
+input1=VpaOutput_guobk/userhistory_godText/user_join/user_$file/part-$part
+hpoutput=VpaOutput_guobk/userhistory_godText/feature/feature_session/user_$file/$part/
 hadoop fs -rmr $hpoutput
 hadoop jar /usr/lib/hadoop-mapreduce/hadoop-streaming.jar \
     -D stream.non.zero.exit.is.failure=false \
