@@ -1,3 +1,4 @@
+sleep 2h
 rootpath=/search/odin/guobk/streaming/vpa/text_search/getData/modelTrain
 path_global=$rootpath/data/feature_global/20200309/
 path_user=$rootpath/data/feature_user/20200309/
@@ -12,6 +13,5 @@ mkdir log
 for((i=0;i<${#date[@]};i++))
 do
 path_session=$path_session0/${date[$i]}
-echo $path_session
-#python -u train_model.py $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log
+python -u train_model.py $mode $path_global $path_user $path_session $resultpath $model >> log/$modelversion-$mode.log
 done
