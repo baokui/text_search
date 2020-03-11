@@ -52,8 +52,9 @@ def data_initial(path_global,path_user,users,path_userData='userData'):
         r_sc_all = np.array(r_sc_all)
         r_time_all = np.array(r_time_all)
     return r_all,r_sc_all,r_time_all,D_user
-def train(path_tmpfile,resultpath,model,joining=False):
+def train(path_global,path_user,path_session, path_session_test,resultpath,model,path_userData='userData',joining=False):
     config_train=Config_train()
+    config_model=modelconfig()
     config_train.feature_dim = config_model.get_nb_features()[0]
     if joining:
         config_train.feature_dim+=1
@@ -77,34 +78,35 @@ def train(path_tmpfile,resultpath,model,joining=False):
         session.run(init)
     learning_rate_ = config_train.learning_rate
     step = 0
-    time0 = time.time()
-    waittime=0
-    while True:
-        files = os.listdir(path_tmpfile)
-        if len(files)==0:
-            time.sleep(10)
-            waittime += 10
-            files = os.listdir(path_tmpfile)
-        else:
-            waittime = 0
-        if waittime > 2*60*60:
-            break
-        for file in files:
-            try:
-                path = os.path.join(path_tmpfile,file)
-                data = np.load(path)
-                x0, y0 = data
-                x0 = list(x0)
-                y0 = np.reshape(y0,(len(y0),1))
-                if step%config_train.step_saveckpt==0:
-                    saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
-                session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
-                step += 1
-                os.remove(path)
-                print('training used time %0.2f mins for %d steps'%((time.time()-time0)/60,step))
-            except:
-                print('fail to train on %s'%path)
-                os.remove(path)
+    completed = 0
+    data_train = os.listdir(path_session)
+    usernb = 0
+    for path in data_train:
+        usernb += 1
+        datapath = modules.get_sessionfile(os.path.join(path_session,path))
+        print('training on '+ path)
+        time0 = time.time()
+        users = [path]
+        r_all, r_sc_all, r_time_all, D_user = data_initial(path_global,path_user,users,path_userData)
+        D_other = [r_all] + r_sc_all + r_time_all
+        iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.train_batch_size, rate_skip = config_train.skip_rate,rate_skip_neg=1-r_all,config_global=config_model,joining=joining)
+        epoch = 0
+        while epoch<config_train.epochs:
+            data = next(iter)
+            if data == '__STOP__':
+                iter = modules.iterData(datapath, D_user, D_other, r_sc_all, r_time_all,batch_size=config_train.train_batch_size, rate_skip=1-r_all,config_global=config_model,joining=joining)
+                epoch += 1
+                continue
+            x0, y0 = data
+            y0 = np.array(y0)
+            y0 = np.reshape(y0,(len(y0),1))
+            if step%config_train.step_saveckpt==0:
+                saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
+            session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
+            step += 1
+        completed += 1
+        KK = len(data_train) - completed
+        print('training used time %0.2f mins and needs about %0.2f mins for the rest users'%((time.time()-time0)/60,(time.time()-time0)/60*KK))
 def test(path_global,path_user,path_session,resultpath,model,path_ckpt='',path_userData='userData',joining=False,user_idx='a'):
     ####################################################
     config_train = Config_train()

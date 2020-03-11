@@ -11,8 +11,7 @@ class modelconfig(object):
         self.sym_prefix_userfeature = 'imageFeature_'
         self.threshold = 0.62
         self.threshold_ios = 0.62
-        self.path_trigger_table = 'table-trigger.txt'
-        self.path_caption_table = 'table-search-caption.txt'
+        self.path_keywords = 'keywords.txt'
         self.path_modelConfig = ""
         self.path_lrmodel = ""
         self.path_userdata = ''
@@ -23,8 +22,8 @@ class modelconfig(object):
                       'c':6,'d':6,'e':7,'f':7}
     def get_nb_features(self):
         #[hour, last_click]+[sc+out_of_sc]+[timeseg]+[stringlen,punExist]
-        nb_features_session = 2+len(self.get_sc()[0])+len(self.T)+2
-        nb_features_user = 1+len(self.get_sc()[0])+len(self.T)
+        nb_features_session = 2+len(self.get_sc())+len(self.T)+2
+        nb_features_user = 1+len(self.get_sc())+len(self.T)
         nb_features_global = 2
         nb_features = nb_features_global+nb_features_user+nb_features_session
         return nb_features, nb_features_session, nb_features_user, nb_features_global
@@ -32,10 +31,7 @@ class modelconfig(object):
         threshold_predict = -np.log(1/self.threshold-1)
         return threshold_predict,-np.log(1/self.threshold_ios-1)
     def get_sc(self):
-        with open(self.path_trigger_table) as f:
-            S = [w.strip() for w in f]
-        S = [a.split('\t') for a in S]
-        L0 = [a[1] for a in S]
-        L0 = list(set(L0))
-        D_tr2sr = {a[0]: a[1] for a in S}
-        return L0, D_tr2sr
+        with open(self.path_keywords,'r') as f:
+            keywords = f.read().strip().split('\n')
+        keywords.append('otherwords')
+        return keywords

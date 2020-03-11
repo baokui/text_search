@@ -19,7 +19,7 @@ def get_sessionfile(rootpath):
     eachFile(rootpath)
     return datas
 def feature_global(files,config_global):
-    Sc,_ = config_global.get_sc()
+    Sc = config_global.get_sc()
     def getdata(filepath):
         with open(filepath,'r') as f:
             s = f.read().split('\n')
