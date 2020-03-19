@@ -14,9 +14,10 @@ for line in sys.stdin:
             if len(lastValues)>=nb_min_key:
                 value = [[k,lastValues[k]] for k in lastValues]
                 value = sorted(value,key=lambda x:-x[-1])
-                value_s = '\t'.join([k[0]+'#'+str(k[1]) for k in value])
-                S = lastKey+'\t'+value_s
-                sys.stdout.write("%s\n" % S)
+                if value[0][1]>1:
+                    value_s = '\t'.join([k[0]+'#'+str(k[1]) for k in value])
+                    S = lastKey+'\t'+value_s
+                    sys.stdout.write("%s\n" % S)
         lastValues = {}
     lastKey=Key
     if fields[1] not in lastValues:

@@ -14,5 +14,5 @@ for line in sys.stdin:
     for i in range(len(fields)-1):
         if len(R[i])<2 or len(R[i])>8:
             continue
-        S = fields[i]+'\t'+fields[i+1]
+        S = R[i].encode('utf-8')+'\t'+R[i+1].encode('utf-8')
         sys.stdout.write("%s\n" % S)
