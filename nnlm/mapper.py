@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import sys
 def removepunc(s,punc=u' \u3000 ,\uff0c.\u3002\u3001!\uff01?\uff1f;\uff1b~\uff5e\xb7\xb7.\u2026-#_\u2014+=\'"\u2018\u2019\u201c\u201d*&^%$/\\@'):
     for p in punc:
