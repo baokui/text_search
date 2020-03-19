@@ -1,9 +1,9 @@
 path_source=zhangfeixue/nlg/userdata/
 path_target=VpaOutput_guobk/dabaigou_train_nnlm/
-idx=00
-input=$path_source/part-00$idx*
+idx=0
+input=$path_source/part-0$idx*
 output=$path_target/00$idx
-nohup sh run_join.sh $input $output >> log/00$idx-.log 2>&1 &
+nohup sh run_join.sh $input $output >> log/00$idx.log 2>&1 &
 '''
 mkdir log
 Month=202001
