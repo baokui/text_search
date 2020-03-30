@@ -31,7 +31,6 @@ def getSynonym(topn=10,path_mutiReplace='../data/beauty.table.txt',path_w2v = '/
     with open('../data/beauty.table1.txt','w') as f:
         f.write('\n'.join(T))
     print('re-sort for symwords....')
-if 1:
     scId = ''
     sc0 = ''
     sc1 = ''
