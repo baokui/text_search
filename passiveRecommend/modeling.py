@@ -79,8 +79,8 @@ def simple_svm(config):
         return X_holder, y_holder, learning_rate, predict_y_0, loss, optimizer, train_op, grads, accuracy
 def simple_lr_dense(config):
     with tf.name_scope('inputs'):
-        X_holder = tf.placeholder(tf.float32,shape=[config.batch_size,config.feature_dim])
-        y_holder = tf.placeholder(tf.float32,shape=[config.batch_size,1])
+        X_holder = tf.placeholder(tf.float32,shape=[None,config.feature_dim])
+        y_holder = tf.placeholder(tf.float32,shape=[None,1])
         learning_rate = tf.placeholder(tf.float32)
     with tf.name_scope('parameters'):
         #embedding = tf.Variable(np.random.normal(size=(config.vocab_size, config.embeds)))

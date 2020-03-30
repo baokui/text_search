@@ -2,10 +2,11 @@ import xlrd
 import numpy as np
 import random
 from modules import getFeature,calAUC
-from modeling import simple_lr
+from modeling import simple_lr,simple_lr_dense
 import tensorflow as tf
 import os
 import json
+import sys
 class Config_train(object):
     def __init__(self):
         self.batch_size = 128
@@ -62,10 +63,13 @@ def iterData(X,y,batch_size,epoch=20):
                 Xr,yr = [],[]
         yield '__STOP__'
     yield '__RETURN__'
-def training(path_data,config_feature,path_ckpt,config_train):
+def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
     XTrn, XTst, yTrn, yTst = dataSplit(path_data,config_feature)
     feature_dim = len(XTrn[0])
-    X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
+    if mode=='lr':
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
+    if mode=='lr-dense':
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(config_train)
     global_step = tf.train.get_or_create_global_step()
     train_op = tf.group(train_op, [tf.assign_add(global_step, 1)])
     saver = tf.train.Saver(max_to_keep=10)
@@ -106,10 +110,10 @@ def training(path_data,config_feature,path_ckpt,config_train):
         step += 1
         data = next(iter)
     print('training over!')
-def main():
+def main(mode):
     path_data = 'data/data.xlsx'
     path_idf = 'data/idf_char.json'
-    path_ckpt = 'lr-ckpt'
+    path_ckpt = mode+'-ckpt'
     config_feature = {}
     config_feature['use_charIdf'] = True
     config_feature['use_sentLen'] = True
@@ -121,6 +125,7 @@ def main():
     config_feature['idf'] = idf
     charList = [w for w in idf]
     config_feature['charList'] = charList
-    training(path_data, config_feature, path_ckpt, config_train)
+    training(path_data, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
-    main()
+    mode = sys.argv[1]
+    main(mode)
