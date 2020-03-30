@@ -80,6 +80,7 @@ def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
     ckpt_file = tf.train.latest_checkpoint(path_ckpt)
     if ckpt_file:
         saver.restore(session, ckpt_file)
+        print('restore model from %s'%ckpt_file)
     else:
         init = tf.global_variables_initializer()
         session.run(init)
