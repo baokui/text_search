@@ -20,7 +20,7 @@ class Config_train(object):
         self.learning_rate = 0.5
         self.keep_prob = 0.8
         self.nb_examples = 100000
-        self.epochs = 30
+        self.epochs = 300
         self.step_saveckpt = 100
         self.step_printlog = 50
         self.testlines = 1000000
