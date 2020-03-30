@@ -66,6 +66,7 @@ def iterData(X,y,batch_size,epoch=20):
 def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
     XTrn, XTst, yTrn, yTst = dataSplit(path_data,config_feature)
     feature_dim = len(XTrn[0])
+    config_train.feature_dim =feature_dim
     if mode=='lr':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
     if mode=='lr-dense':
