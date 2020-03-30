@@ -8,7 +8,7 @@ import os
 import json
 class Config_train(object):
     def __init__(self):
-        self.batch_size = None
+        self.batch_size = 128
         self.feature_dim = None
         self.hiddenSize = 256
         self.skip_rate = 0.0
@@ -19,9 +19,9 @@ class Config_train(object):
         self.learning_rate = 0.5
         self.keep_prob = 0.8
         self.nb_examples = 100000
-        self.epochs = 1
+        self.epochs = 30
         self.step_saveckpt = 100
-        self.step_printlog = 20
+        self.step_printlog = 50
         self.testlines = 1000000
 def dataSplit(path_data,config,rate_test=0.25):
     workbook = xlrd.open_workbook(path_data)  # 打开excel文件
@@ -36,13 +36,17 @@ def dataSplit(path_data,config,rate_test=0.25):
         res.append(r)
     res = res[1:]
     random.shuffle(res)
-    S = [res[i][1] for i in range(len(res))]
-    y = [res[i][2] for i in range(len(res))]
+    S = []
+    y = []
+    for i in range(len(res)):
+        if isinstance(res[i][1],str):
+            S.append(res[i][1])
+            y.append(res[i][2])
     X = [getFeature(s,config) for s in S]
-    XTrn = X[:int(len(S)*rate_test)]
-    XTst = X[int(len(S)*rate_test):]
-    yTrn = y[:int(len(S)*rate_test)]
-    yTst = y[int(len(S)*rate_test):]
+    XTst = X[:int(len(S)*rate_test)]
+    XTrn = X[int(len(S)*rate_test):]
+    yTst = y[:int(len(S)*rate_test)]
+    yTrn = y[int(len(S)*rate_test):]
     return XTrn,XTst,yTrn,yTst
 def iterData(X,y,batch_size,epoch=20):
     L = [i for i in range(len(X))]
