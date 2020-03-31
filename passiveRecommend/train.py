@@ -14,7 +14,7 @@ class Config_train(object):
         self.hiddenSize = 256
         self.skip_rate = 0.0
         self.train_batch_size = 1024
-        self.test_batch_size = 1024
+        self.test_batch_size = 50000
         self.init_learning_rate = 0.1
         self.end_learning_rate = 0.01
         self.learning_rate = 0.5
@@ -24,30 +24,20 @@ class Config_train(object):
         self.step_saveckpt = 100
         self.step_printlog = 50
         self.testlines = 1000000
-def dataSplit(path_data,config,rate_test=0.25):
-    workbook = xlrd.open_workbook(path_data)  # 打开excel文件
-    table = workbook.sheet_by_name('Sheet1')  # 将文件内容表格化
-    rows_num = table.nrows  # 获取行
-    cols_num = table.ncols  # 获取列
-    res = []  # 定义一个数组
-    for rows in range(rows_num):
-        r = []
-        for cols in range(cols_num):
-            r.append(table.cell(rows, cols).value)  # 获取excel中单元格的内容
-        res.append(r)
-    res = res[1:]
-    random.shuffle(res)
-    S = []
-    y = []
-    for i in range(len(res)):
-        if isinstance(res[i][1],str):
-            S.append(res[i][1])
-            y.append(res[i][2])
-    X = [getFeature(s,config) for s in S]
-    XTst = X[:int(len(S)*rate_test)]
-    XTrn = X[int(len(S)*rate_test):]
-    yTst = y[:int(len(S)*rate_test)]
-    yTrn = y[int(len(S)*rate_test):]
+def dataSplit(path_train,path_test,config):
+    with open(path_train,'r') as f:
+        S = f.read().strip().split('\n')
+    S = [s.split('\t') for s in S]
+    XTrn = [getFeature(s[0],config) for s in S]
+    yTrn = [int(s[1]) for s in S]
+    with open(path_test, 'r') as f:
+        S = f.read().strip().split('\n')
+    S = [s.split('\t') for s in S]
+    XTst = [getFeature(s[0], config) for s in S]
+    yTst = [int(s[1]) for s in S]
+    print('number of train/test samples is {}/{}'.format(len(XTrn),len(XTst)))
+    print('number of positive/negative samples of trainSet is {}/{}'.format(sum(yTrn),len(yTrn)-sum(yTrn)))
+    print('number of positive/negative samples of testSet is {}/{}'.format(sum(yTst), len(yTst) - sum(yTst)))
     return XTrn,XTst,yTrn,yTst
 def iterData(X,y,batch_size,epoch=20):
     L = [i for i in range(len(X))]
@@ -63,8 +53,20 @@ def iterData(X,y,batch_size,epoch=20):
                 Xr,yr = [],[]
         yield '__STOP__'
     yield '__RETURN__'
-def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
-    XTrn, XTst, yTrn, yTst = dataSplit(path_data,config_feature)
+def iterData_test(X,y,batch_size):
+    L = [i for i in range(len(X))]
+    while True:
+        random.shuffle(L)
+        Xr = []
+        yr = []
+        for i in range(len(L)):
+            Xr.append(X[L[i]])
+            yr.append(y[L[i]])
+            if len(Xr)==batch_size:
+                yield Xr,yr
+                Xr,yr = [],[]
+def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr'):
+    XTrn, XTst, yTrn, yTst = dataSplit(path_train,path_test,config_feature)
     feature_dim = len(XTrn[0])
     config_train.feature_dim =feature_dim
     if mode=='lr':
@@ -86,9 +88,9 @@ def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
         session.run(init)
     learning_rate_ = config_train.learning_rate
     iter = iterData(XTrn,yTrn,batch_size=config_train.train_batch_size,epoch=config_train.epochs)
+    iter_test = iterData(XTst, yTst, batch_size=config_train.test_batch_size)
     data = next(iter)
     step = 0
-    yTst1 = np.reshape(yTst,(len(yTst),1))
     epoch = 0
     print('training begin')
     while data!='__RETURN__':
@@ -103,8 +105,11 @@ def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
             saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
         if step%config_train.step_printlog==0:
             loss_ = session.run(loss, feed_dict={X_holder: x0, y_holder: y0, learning_rate: learning_rate_})
+            x0_test, y0_test = next(iter_test)
+            y0_test = np.array(y0_test)
+            y0_test = np.reshape(y0_test, (len(y0_test), 1))
             y_p0 = session.run(predict_y,
-                               feed_dict={X_holder: XTst, y_holder: yTst1, learning_rate: learning_rate_})
+                               feed_dict={X_holder: x0_test, y_holder: y0_test, learning_rate: learning_rate_})
             y_p = [tmp[0] for tmp in y_p0]
             auc = calAUC(y_p,yTst)
             print('epoch:{}-step:{}-auc_test:{}-loss_trn:{}'.format(epoch,step,'%0.3f'%auc,'%0.4f'%loss_))
@@ -113,8 +118,10 @@ def training(path_data,config_feature,path_ckpt,config_train,mode='lr'):
         data = next(iter)
     print('training over!')
 def main(mode):
-    path_data = 'data/data.xlsx'
+    path_train = 'data/train.txt'
+    path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
+    path_vocab = 'data/vocab.txt'
     path_ckpt = mode+'-ckpt'
     config_feature = {}
     config_feature['use_charIdf'] = True
@@ -124,10 +131,11 @@ def main(mode):
     config_train = Config_train()
     with open(path_idf,'r') as f:
         idf = json.load(f)
+    with open(path_vocab,'r') as f:
+        vocab = f.read().strip().split('\n')
     config_feature['idf'] = idf
-    charList = [w for w in idf]
-    config_feature['charList'] = charList
-    training(path_data, config_feature, path_ckpt, config_train,mode=mode)
+    config_feature['charList'] = vocab
+    training(path_train,path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
     main(mode)
