@@ -14,7 +14,7 @@ class Config_train(object):
         self.hiddenSize = 256
         self.skip_rate = 0.0
         self.train_batch_size = 1024
-        self.test_batch_size = 50000
+        self.test_batch_size = 10000
         self.init_learning_rate = 0.1
         self.end_learning_rate = 0.01
         self.learning_rate = 0.5
@@ -88,7 +88,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
         session.run(init)
     learning_rate_ = config_train.learning_rate
     iter = iterData(XTrn,yTrn,batch_size=config_train.train_batch_size,epoch=config_train.epochs)
-    iter_test = iterData(XTst, yTst, batch_size=config_train.test_batch_size)
+    iter_test = iterData_test(XTst, yTst, batch_size=config_train.test_batch_size)
     data = next(iter)
     step = 0
     epoch = 0
