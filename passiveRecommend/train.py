@@ -112,7 +112,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
             y_p0 = session.run(predict_y,
                                feed_dict={X_holder: x0_test, y_holder: y0_test, learning_rate: learning_rate_})
             y_p = [tmp[0] for tmp in y_p0]
-            auc = calAUC(y_p,yTst)
+            auc = calAUC(y_p,y0_test)
             print('epoch:{}-step:{}-auc_test:{}-loss_trn:{}'.format(epoch,step,'%0.3f'%auc,'%0.4f'%loss_))
         session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
         step += 1
