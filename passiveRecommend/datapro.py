@@ -87,7 +87,7 @@ def getdata(path_data = 'D:\\项目\\输入法\\神配文数据\\召回标注\\�
         f.write('\n'.join(W))
     random.shuffle(res)
     dataTrn = res[:int(len(res)*0.8)]
-    dataTst = res[-int(len(res)*0.8):]
+    dataTst = res[int(len(res)*0.8):]
     with open('passiveRecommend/data/train.txt','w',encoding='utf-8') as f:
         f.write('\n'.join(dataTrn))
     with open('passiveRecommend/data/test.txt','w',encoding='utf-8') as f:

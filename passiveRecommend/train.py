@@ -105,7 +105,8 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
             saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
         if step%config_train.step_printlog==0:
             loss_ = session.run(loss, feed_dict={X_holder: x0, y_holder: y0, learning_rate: learning_rate_})
-            x0_test, y0_test = next(iter_test)
+            datatest = next(iter_test)
+            x0_test,y0_test = datatest
             y0_test = np.array(y0_test)
             y0_test = np.reshape(y0_test, (len(y0_test), 1))
             y_p0 = session.run(predict_y,
