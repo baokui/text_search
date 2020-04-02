@@ -52,3 +52,4 @@ def calAUC(prob, labels):
     auc = (sum(rankList) - (posNum * (posNum + 1)) / 2) / (posNum * negNum)
     # print(auc)
     return auc
+
