@@ -78,6 +78,7 @@ def preprocess():
     #y_train = [[int(t == 0), int(t == 1)] for t in y_train]
     x_train = np.array(x_train)
     y_train = np.array(y_train)
+    y_train = np.reshape(y_train, (len(y_train), 1))
     with open(FLAGS.test_data_file,'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
@@ -87,6 +88,7 @@ def preprocess():
     #y_dev = [[int(t==0),int(t==1)] for t in y_dev]
     x_dev = np.array(x_dev)
     y_dev = np.array(y_dev)
+    y_dev = np.reshape(y_dev, (len(y_dev), 1))
     print("Vocabulary Size: {:d}".format(len(tokenizer.vocab)))
     print("Train/Test split: {:d}/{:d}".format(len(y_train), len(y_dev)))
     return x_train, y_train, tokenizer, x_dev, y_dev
