@@ -190,8 +190,7 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                 step, summaries, loss, accuracy,predict = sess.run(
                     [global_step, dev_summary_op, cnn.loss, cnn.accuracy,cnn.predictions],
                     feed_dict)
-                y_p = [tmp[0] for tmp in predict]
-                auc = calAUC(y_p, y_batch)
+                auc = calAUC(predict, y_batch)
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: step {}, loss {:g}, acc {:g}, auc {:g}".format(time_str, step, loss, accuracy,auc))
                 if writer:
