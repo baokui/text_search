@@ -6,6 +6,7 @@ import os
 import time
 import datetime
 import random
+from modules import calAUC
 from textcnn import TextCNN
 from tensorflow.contrib import learn
 sys.path.append("../../nlprocess")
@@ -29,8 +30,9 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 # Training parameters
 tf.flags.DEFINE_integer("train_batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("evaluate_every", 200, "Evaluate model on dev set after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 200, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("log_every", 50, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 # Misc Parameters
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
@@ -170,7 +172,7 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                     [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                     feed_dict)
                 time_str = datetime.datetime.now().isoformat()
-                if step%10==0:
+                if step%FLAGS.log_every==0:
                     print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
                     train_summary_writer.add_summary(summaries, step)
 
@@ -183,11 +185,13 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                   cnn.input_y: y_batch,
                   cnn.dropout_keep_prob: 1.0
                 }
-                step, summaries, loss, accuracy = sess.run(
-                    [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
+                step, summaries, loss, accuracy,predict = sess.run(
+                    [global_step, dev_summary_op, cnn.loss, cnn.accuracy,cnn.predictions],
                     feed_dict)
+                y0 = [np.argmax(tt) for tt in y_batch]
+                auc = calAUC(predict, y0)
                 time_str = datetime.datetime.now().isoformat()
-                print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+                print("{}: step {}, loss {:g}, acc {:g}, auc {:g}".format(time_str, step, loss, accuracy,auc))
                 if writer:
                     writer.add_summary(summaries, step)
 
