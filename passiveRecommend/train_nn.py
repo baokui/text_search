@@ -75,7 +75,7 @@ def preprocess():
     STrn = [' '.join(list(textprocess(s[0]))) for s in S]
     x_train = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_train = [int(S[i][1]) for i in range(len(S))]
-    y_train = [[int(t == 0), int(t == 1)] for t in y_train]
+    #y_train = [[int(t == 0), int(t == 1)] for t in y_train]
     x_train = np.array(x_train)
     y_train = np.array(y_train)
     with open(FLAGS.test_data_file,'r') as f:
@@ -84,7 +84,7 @@ def preprocess():
     STrn = [textprocess(s[0]) for s in S]
     x_dev = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_dev = [int(S[i][1]) for i in range(len(S))]
-    y_dev = [[int(t==0),int(t==1)] for t in y_dev]
+    #y_dev = [[int(t==0),int(t==1)] for t in y_dev]
     x_dev = np.array(x_dev)
     y_dev = np.array(y_dev)
     print("Vocabulary Size: {:d}".format(len(tokenizer.vocab)))
