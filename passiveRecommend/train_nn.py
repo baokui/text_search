@@ -15,7 +15,8 @@ from Tokenization import Tokenizer
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
 tf.flags.DEFINE_string("train_data_file", "./data/train.txt", "Data source for the train data.")
 tf.flags.DEFINE_string("test_data_file", "./data/test.txt", "Data source for the test data.")
-tf.flags.DEFINE_string("vocab_file", "./data/vocab.txt", "Data source for the vocab data.")
+tf.flags.DEFINE_string("vocab_file", "./data/vocab_char.txt", "Data source for the vocab data.")
+tf.flags.DEFINE_string("out_dir", "./model_cnn", "outputdir")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("sequence_length", 10, "Dimensionality of sentence length (default: 10)")
@@ -34,6 +35,7 @@ tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (d
 # Misc Parameters
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
+
 
 FLAGS = tf.flags.FLAGS
 def dataprepro(path_train,path_vocab):
@@ -68,20 +70,21 @@ def preprocess():
     with open(FLAGS.train_data_file,'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
-    STrn = [textprocess(s[0]) for s in S]
+    STrn = [' '.join(list(textprocess(s[0]))) for s in S]
     x_train = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_train = [int(S[i][1]) for i in range(len(S))]
-    y0 = np.array(y_train)
-    y_train = np.reshape(y0, (len(y0), 1))
+    y_train = [[int(t == 0), int(t == 1)] for t in y_train]
+    x_train = np.array(x_train)
+    y_train = np.array(y_train)
     with open(FLAGS.test_data_file,'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
     STrn = [textprocess(s[0]) for s in S]
     x_dev = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_dev = [int(S[i][1]) for i in range(len(S))]
-    y0 = np.array(y_dev)
-    y_dev = np.reshape(y0, (len(y0), 1))
-
+    y_dev = [[int(t==0),int(t==1)] for t in y_dev]
+    x_dev = np.array(x_dev)
+    y_dev = np.array(y_dev)
     print("Vocabulary Size: {:d}".format(len(tokenizer.vocab)))
     print("Train/Test split: {:d}/{:d}".format(len(y_train), len(y_dev)))
     return x_train, y_train, tokenizer, x_dev, y_dev
@@ -123,7 +126,8 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
 
             # Output directory for models and summaries
             timestamp = str(int(time.time()))
-            out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
+            #out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
+            out_dir = FLAGS.out_dir
             print("Writing to {}\n".format(out_dir))
 
             # Summaries for loss and accuracy
@@ -166,8 +170,9 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                     [train_op, global_step, train_summary_op, cnn.loss, cnn.accuracy],
                     feed_dict)
                 time_str = datetime.datetime.now().isoformat()
-                print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
-                train_summary_writer.add_summary(summaries, step)
+                if step%10==0:
+                    print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+                    train_summary_writer.add_summary(summaries, step)
 
             def dev_step(x_batch, y_batch, writer=None):
                 """
@@ -200,6 +205,7 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                     continue
                 x_batch, y_batch = data
                 train_step(x_batch, y_batch)
+                data = next(iter)
                 current_step = tf.train.global_step(sess, global_step)
                 if current_step % FLAGS.evaluate_every == 0:
                     print("\nEvaluation:")
@@ -210,8 +216,8 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                     print("Saved model checkpoint to {}\n".format(path))
 
 def main(argv=None):
-    x_train, y_train, vocab_processor, x_dev, y_dev = preprocess()
-    train(x_train, y_train, vocab_processor, x_dev, y_dev)
+    x_train, y_train, tokenizer, x_dev, y_dev = preprocess()
+    train(x_train, y_train, tokenizer, x_dev, y_dev)
 
 if __name__ == '__main__':
     tf.app.run()
