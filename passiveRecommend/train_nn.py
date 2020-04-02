@@ -26,7 +26,7 @@ tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (defau
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("train_batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
@@ -187,7 +187,7 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                     writer.add_summary(summaries, step)
 
             # Generate batches
-            iter = iterData(x_train, y_train, batch_size=FLAGS.train_batch_size, epoch=FLAGS.epochs)
+            iter = iterData(x_train, y_train, batch_size=FLAGS.train_batch_size, epoch=FLAGS.num_epochs)
             # Training loop. For each batch...
             data = next(iter)
             step = 0
