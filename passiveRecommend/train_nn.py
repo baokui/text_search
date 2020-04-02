@@ -157,9 +157,13 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
 
             # Write vocabulary
             #vocab_processor.save(os.path.join(out_dir, "vocab"))
-
-            # Initialize all variables
-            sess.run(tf.global_variables_initializer())
+            ckpt_file = tf.train.latest_checkpoint(checkpoint_dir)
+            if ckpt_file:
+                saver.restore(sess, ckpt_file)
+                print('restoring model from %s'%ckpt_file)
+            else:
+                # Initialize all variables
+                sess.run(tf.global_variables_initializer())
 
             def train_step(x_batch, y_batch):
                 """
@@ -219,7 +223,7 @@ def train(x_train, y_train, tokenizer, x_dev, y_dev):
                 if current_step % FLAGS.checkpoint_every == 0:
                     path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                     print("Saved model checkpoint to {}\n".format(path))
-def test(x_train, y_train, tokenizer, x_dev, y_dev):
+def test(x_train, y_train, tokenizer, x_dev, y_dev,batch_size=64):
     with tf.Graph().as_default():
         session_conf = tf.ConfigProto(
           allow_soft_placement=FLAGS.allow_soft_placement,
@@ -234,14 +238,10 @@ def test(x_train, y_train, tokenizer, x_dev, y_dev):
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters,
                 l2_reg_lambda=FLAGS.l2_reg_lambda)
-
             # Define Training procedure
             global_step = tf.Variable(0, name="global_step", trainable=False)
             optimizer = tf.train.AdamOptimizer(1e-3)
             grads_and_vars = optimizer.compute_gradients(cnn.loss)
-            train_op = optimizer.apply_gradients(grads_and_vars, global_step=global_step)
-
-            # Keep track of gradient values and sparsity (optional)
             grad_summaries = []
             for g, v in grads_and_vars:
                 if g is not None:
@@ -250,30 +250,8 @@ def test(x_train, y_train, tokenizer, x_dev, y_dev):
                     grad_summaries.append(grad_hist_summary)
                     grad_summaries.append(sparsity_summary)
             grad_summaries_merged = tf.summary.merge(grad_summaries)
-
-            # Output directory for models and summaries
-            timestamp = str(int(time.time()))
-            #out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
             out_dir = FLAGS.out_dir
-            print("Writing to {}\n".format(out_dir))
-
-            # Summaries for loss and accuracy
-            loss_summary = tf.summary.scalar("loss", cnn.loss)
-            acc_summary = tf.summary.scalar("accuracy", cnn.accuracy)
-
-            # Train Summaries
-            train_summary_op = tf.summary.merge([loss_summary, acc_summary, grad_summaries_merged])
-            train_summary_dir = os.path.join(out_dir, "summaries", "train")
-            train_summary_writer = tf.summary.FileWriter(train_summary_dir, sess.graph)
-
-            # Dev summaries
-            dev_summary_op = tf.summary.merge([loss_summary, acc_summary])
-            dev_summary_dir = os.path.join(out_dir, "summaries", "dev")
-            dev_summary_writer = tf.summary.FileWriter(dev_summary_dir, sess.graph)
-
-            # Checkpoint directory. Tensorflow assumes this directory already exists so we need to create it
             checkpoint_dir = os.path.abspath(os.path.join(out_dir, "checkpoints"))
-            checkpoint_prefix = os.path.join(checkpoint_dir, "model")
             if not os.path.exists(checkpoint_dir):
                 os.makedirs(checkpoint_dir)
             saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.num_checkpoints)
@@ -295,7 +273,7 @@ def test(x_train, y_train, tokenizer, x_dev, y_dev):
                 time_str = datetime.datetime.now().isoformat()
                 print("{}: loss {:g}, acc {:g}, auc {:g}".format(time_str, loss, accuracy,auc))
             test_step(x_dev,y_dev)
-            test_step(x_train[:10000],y_dev[:10000])
+            test_step(x_train[:batch_size],y_dev[:batch_size])
 def main(argv=None):
     x_train, y_train, tokenizer, x_dev, y_dev = preprocess()
     train(x_train, y_train, tokenizer, x_dev, y_dev)
