@@ -71,13 +71,16 @@ def preprocess():
     STrn = [textprocess(s[0]) for s in S]
     x_train = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_train = [int(S[i][1]) for i in range(len(S))]
-
+    y0 = np.array(y_train)
+    y_train = np.reshape(y0, (len(y0), 1))
     with open(FLAGS.test_data_file,'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
     STrn = [textprocess(s[0]) for s in S]
     x_dev = [tokenizer.convert_tokens_to_ids(STrn[i],seq_length=FLAGS.sequence_length) for i in range(len(S))]
     y_dev = [int(S[i][1]) for i in range(len(S))]
+    y0 = np.array(y_dev)
+    y_dev = np.reshape(y0, (len(y0), 1))
 
     print("Vocabulary Size: {:d}".format(len(tokenizer.vocab)))
     print("Train/Test split: {:d}/{:d}".format(len(y_train), len(y_dev)))
