@@ -17,7 +17,7 @@ tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training d
 tf.flags.DEFINE_string("train_data_file", "./data/train.txt", "Data source for the train data.")
 tf.flags.DEFINE_string("test_data_file", "./data/test.txt", "Data source for the test data.")
 tf.flags.DEFINE_string("vocab_file", "./data/vocab_char.txt", "Data source for the vocab data.")
-tf.flags.DEFINE_string("out_dir", "./model_cnn", "outputdir")
+tf.flags.DEFINE_string("out_dir", "./cnn-ckpt", "outputdir")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("sequence_length", 10, "Dimensionality of sentence length (default: 10)")
