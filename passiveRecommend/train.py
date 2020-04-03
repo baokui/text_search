@@ -7,6 +7,14 @@ import tensorflow as tf
 import os
 import json
 import sys
+def getW2V(path_w2v):
+    f = open(path_w2v,'r')
+    D = {}
+    for line in f:
+        s = line.strip().split(' ')
+        D[s[0]] = [float(t) for t in s[1:]]
+    f.close()
+    return D
 class Config_train(object):
     def __init__(self):
         self.batch_size = 128
@@ -123,12 +131,17 @@ def main(mode):
     path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
     path_vocab = 'data/vocab.txt'
+    path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
     path_ckpt = mode+'-ckpt'
     config_feature = {}
     config_feature['use_charIdf'] = True
     config_feature['use_sentLen'] = True
     config_feature['use_puncExist'] = True
     config_feature['use_char'] = True
+    if mode=='lr-w2v':
+        config_feature['use_w2v'] = True
+        config_feature['w2v'] = getW2V(path_w2v)
+        config_feature['dim_v'] = 128
     config_train = Config_train()
     with open(path_idf,'r') as f:
         idf = json.load(f)

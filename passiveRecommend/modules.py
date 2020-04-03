@@ -1,3 +1,5 @@
+import jieba
+import numpy as np
 def getFeature(Str,config):
     x = []
     if config['use_charIdf']:
@@ -11,7 +13,22 @@ def getFeature(Str,config):
     if config['use_char']:
         t = getCharFeature(Str,config['charList'])
         x.extend(t)
+    if 'user_w2v' in config and config['use_w2v']:
+        t = getSentV(Str,config['w2v'],config['dim_v'])
+        x.extend(t)
     return x
+def getSentV(Str,D,dim):
+    s = list(jieba.cut(Str))
+    v = []
+    for t in s:
+        if t in D:
+            v.append(D[t])
+    if len(v)==0:
+        return [0 for i in range(dim)]
+    v = np.array(v)
+    v = np.mean(v,axis=0)
+    return list(v)
+
 def getPunExist(Str,punc=[]):
     if len(punc)==0:
         punc = '.,?!。，？！'
