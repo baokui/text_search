@@ -8,12 +8,14 @@ import os
 import json
 import sys
 def getW2V(path_w2v):
+    print('reading w2v file...')
     f = open(path_w2v,'r')
     D = {}
     for line in f:
         s = line.strip().split(' ')
         D[s[0]] = [float(t) for t in s[1:]]
     f.close()
+    print('complete w2v reading')
     return D
 class Config_train(object):
     def __init__(self):
