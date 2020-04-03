@@ -3,7 +3,7 @@ import numpy as np
 def getFeature(Str,config):
     x = []
     sents = list(jieba.cut(Str))
-    if config['use_charIdf']:
+    if 'use_charIdf' in config and config['use_charIdf']:
         t = getCharIdf(Str,config['idf'])
         x.extend(t)
     if config['use_sentLen']:
@@ -11,7 +11,7 @@ def getFeature(Str,config):
     if config['use_puncExist']:
         t = getPunExist(Str)
         x.extend(t)
-    if config['use_char']:
+    if 'use_char' in config and config['use_char']:
         t = getCharFeature(Str,config['charList'])
         x.extend(t)
     if 'use_word' in config and config['use_word']:
