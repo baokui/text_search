@@ -2,6 +2,7 @@ import jieba
 import numpy as np
 def getFeature(Str,config):
     x = []
+    sents = list(jieba.cut(Str))
     if config['use_charIdf']:
         t = getCharIdf(Str,config['idf'])
         x.extend(t)
@@ -13,12 +14,18 @@ def getFeature(Str,config):
     if config['use_char']:
         t = getCharFeature(Str,config['charList'])
         x.extend(t)
+    if 'use_word' in config and config['use_word']:
+        t = getCharFeature(sents,config['wordList'])
+        x.extend(t)
+    if 'use_wordIdf' in config and config['use_wordIdf']:
+        t = getCharIdf(sents,config['idf_word'])
+        x.extend(t)
     if 'use_w2v' in config and config['use_w2v']:
-        t = getSentV(Str,config['w2v'],config['dim_v'])
+        t = getSentV(sents,config['w2v'],config['dim_v'])
         x.extend(t)
     return x
 def getSentV(Str,D,dim):
-    s = list(jieba.cut(Str))
+    s = Str
     v = []
     for t in s:
         if t in D:
@@ -28,7 +35,6 @@ def getSentV(Str,D,dim):
     v = np.array(v)
     v = np.mean(v,axis=0)
     return list(v)
-
 def getPunExist(Str,punc=[]):
     if len(punc)==0:
         punc = '.,?!。，？！'

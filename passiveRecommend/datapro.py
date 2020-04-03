@@ -92,3 +92,30 @@ def getdata(path_data = 'D:\\项目\\输入法\\神配文数据\\召回标注\\�
         f.write('\n'.join(dataTrn))
     with open('passiveRecommend/data/test.txt','w',encoding='utf-8') as f:
         f.write('\n'.join(dataTst))
+def getVocab_words():
+    with open('passiveRecommend/data/train.txt','r',encoding='utf-8') as f:
+        S = f.read().strip().split('\n')
+    S = [s.split('\t')[0] for s in S]
+    S = [list(jieba.cut(s)) for s in S]
+    C = {}
+    N = len(S)
+    for i in range(N):
+        t = set(S[i])
+        for s in t:
+            if s in C:
+                C[s] += 1
+            else:
+                C[s] = 1
+    idf = {d: np.log(N / C[d]) for d in C}
+    W = [(d, idf[d]) for d in idf]
+    W = sorted(W, key=lambda x: -x[-1])
+    W.append(['<UNK>', W[0][1]])
+    idf['<UNK>'] = W[0][1]
+    W = [w[0] for w in W]
+
+    IDF = {W[i]:idf[W[i]] for i in range(len(W)-4000,len(W))}
+    W = W[-4000:]
+    with open('data/idf_word.json','w',encoding='utf-8') as f:
+        json.dump(IDF,f)
+    with open('data/vocab_word.txt','w',encoding='utf-8') as f:
+        f.write('\n'.join(W))

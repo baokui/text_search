@@ -93,7 +93,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
     if mode=='lr-dense':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(config_train)
-    if mode=='lr-w2v':
+    if mode=='lr-w2v' or mode=='lr-w2v-word':
         W_lr = np.load('lr-ckpt/W.npy')
         b = np.load('lr-ckpt/b.npy')
         W_w2v = np.zeros((feature_dim-W_lr.shape[0],1))
@@ -150,6 +150,8 @@ def main(mode):
     path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
     path_vocab = 'data/vocab.txt'
+    path_idf_word = 'data/idf_word.json'
+    path_vocab_word = 'data/vocab_word.txt'
     path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
     path_ckpt = mode+'-ckpt'
     config_feature = {}
@@ -161,6 +163,18 @@ def main(mode):
         config_feature['use_w2v'] = True
         config_feature['w2v'] = getW2V(path_w2v)
         config_feature['dim_v'] = 128
+    if mode=='lr-w2v-word':
+        config_feature['use_w2v'] = True
+        config_feature['w2v'] = getW2V(path_w2v)
+        config_feature['dim_v'] = 128
+        config_feature['use_wordIdf'] = True
+        config_feature['use_word'] = True
+        with open(path_idf_word, 'r') as f:
+            idf = json.load(f)
+        with open(path_vocab_word, 'r') as f:
+            vocab = f.read().strip().split('\n')
+        config_feature['idf_word'] = idf
+        config_feature['wordList'] = vocab
     config_train = Config_train()
     with open(path_idf,'r') as f:
         idf = json.load(f)
