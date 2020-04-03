@@ -81,6 +81,13 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
     if mode=='lr-dense':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(config_train)
+    if mode=='lr-w2v':
+        W_lr = np.load('lr-ckpt/W.npy')
+        b = np.load('lr-ckpt/b.npy')
+        W_w2v = np.zeros((feature_dim-W_lr.shape[0],1))
+        W = np.concatenate((W_lr,W_w2v),axis=0)
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(
+            feature_dim,W=W,b=b)
     global_step = tf.train.get_or_create_global_step()
     train_op = tf.group(train_op, [tf.assign_add(global_step, 1)])
     saver = tf.train.Saver(max_to_keep=10)

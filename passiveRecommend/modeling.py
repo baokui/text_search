@@ -1,15 +1,19 @@
 import tensorflow as tf
 import modules
 import numpy as np
-def simple_lr(feature_dim):
+def simple_lr(feature_dim,W=[],b=[]):
     with tf.name_scope('inputs'):
         X_holder = tf.placeholder(tf.float32,shape=[None,feature_dim])
         y_holder = tf.placeholder(tf.float32,shape=[None,1])
         learning_rate = tf.placeholder(tf.float32)
     with tf.name_scope('parameters'):
         #embedding = tf.Variable(np.random.normal(size=(config.vocab_size, config.embeds)))
-        Weights = tf.Variable(tf.zeros([feature_dim, 1]))
-        biases = tf.Variable(tf.zeros([1, 1]))
+        if len(W)==0:
+            Weights = tf.Variable(tf.zeros([feature_dim, 1]))
+            biases = tf.Variable(tf.zeros([1, 1]))
+        else:
+            Weights = tf.Variable(W)
+            biases = tf.Variable(b)
         threshold = tf.constant(value=0.5)
     with tf.name_scope('inference'):
         #X0 = tf.nn.embedding_lookup(embedding, X_holder0)

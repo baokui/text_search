@@ -13,7 +13,7 @@ def getFeature(Str,config):
     if config['use_char']:
         t = getCharFeature(Str,config['charList'])
         x.extend(t)
-    if 'user_w2v' in config and config['use_w2v']:
+    if 'use_w2v' in config and config['use_w2v']:
         t = getSentV(Str,config['w2v'],config['dim_v'])
         x.extend(t)
     return x
