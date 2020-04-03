@@ -89,7 +89,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
     XTrn, XTst, yTrn, yTst = dataSplit(path_train,path_test,config_feature)
     feature_dim = len(XTrn[0])
     config_train.feature_dim =feature_dim
-    if mode=='lr':
+    if mode=='lr' or mode=='word':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
     if mode=='lr-dense':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(config_train)
@@ -155,27 +155,22 @@ def main(mode):
     path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
     path_ckpt = mode+'-ckpt'
     config_feature = {}
-    config_feature['use_charIdf'] = True
     config_feature['use_sentLen'] = True
     config_feature['use_puncExist'] = True
-    config_feature['use_char'] = True
-    if mode=='lr-w2v':
-        config_feature['use_w2v'] = True
-        config_feature['w2v'] = getW2V(path_w2v)
-        config_feature['dim_v'] = 128
-    if mode=='lr-word':
-        config_feature['use_wordIdf'] = True
-        config_feature['use_word'] = True
-        with open(path_idf_word, 'r') as f:
+    if 'lr' in mode:
+        config_feature['use_charIdf'] = True
+        config_feature['use_char'] = True
+        with open(path_idf, 'r') as f:
             idf = json.load(f)
-        with open(path_vocab_word, 'r') as f:
+        with open(path_vocab, 'r') as f:
             vocab = f.read().strip().split('\n')
-        config_feature['idf_word'] = idf
-        config_feature['wordList'] = vocab
-    if mode=='lr-w2v-word':
+        config_feature['idf'] = idf
+        config_feature['charList'] = vocab
+    if 'w2v' in mode:
         config_feature['use_w2v'] = True
         config_feature['w2v'] = getW2V(path_w2v)
         config_feature['dim_v'] = 128
+    if 'word' in mode:
         config_feature['use_wordIdf'] = True
         config_feature['use_word'] = True
         with open(path_idf_word, 'r') as f:
@@ -185,12 +180,7 @@ def main(mode):
         config_feature['idf_word'] = idf
         config_feature['wordList'] = vocab
     config_train = Config_train()
-    with open(path_idf,'r') as f:
-        idf = json.load(f)
-    with open(path_vocab,'r') as f:
-        vocab = f.read().strip().split('\n')
-    config_feature['idf'] = idf
-    config_feature['charList'] = vocab
+
     training(path_train,path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
