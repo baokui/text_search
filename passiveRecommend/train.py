@@ -36,12 +36,22 @@ def dataSplit(path_train,path_test,config):
     with open(path_train,'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
-    XTrn = [getFeature(s[0],config) for s in S]
+    XTrn = []
+    for i in range(len(S)):
+        s = S[i]
+        XTrn.append(getFeature(s[0],config))
+        if i%1000==0:
+            print('get trainset feature %d lines from %d lines'%(i,len(S)))
     yTrn = [int(s[1]) for s in S]
     with open(path_test, 'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
-    XTst = [getFeature(s[0], config) for s in S]
+    XTst = []
+    for i in range(len(S)):
+        s = S[i]
+        XTst.append(getFeature(s[0],config))
+        if i%1000==0:
+            print('get trainset feature %d lines from %d lines'%(i,len(S)))
     yTst = [int(s[1]) for s in S]
     print('number of train/test samples is {}/{}'.format(len(XTrn),len(XTst)))
     print('number of positive/negative samples of trainSet is {}/{}'.format(sum(yTrn),len(yTrn)-sum(yTrn)))
