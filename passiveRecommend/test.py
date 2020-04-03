@@ -50,6 +50,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
         rec = float(TP)/(TP+FN)
         R.append('\t'.join(['%0.1f'%thr,'%0.4f'%acc,'%0.4f'%pre,'%0.4f'%rec]))
         print([thr,acc,pre,rec])
+    R.append(auc)
     with open('data/test_result-'+mode+'.txt','w') as f:
         f.write('\n'.join(R))
 def main(mode):
