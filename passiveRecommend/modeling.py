@@ -12,8 +12,8 @@ def simple_lr(feature_dim,W=[],b=[]):
             Weights = tf.Variable(tf.zeros([feature_dim, 1]))
             biases = tf.Variable(tf.zeros([1, 1]))
         else:
-            Weights = tf.Variable(W)
-            biases = tf.Variable(b)
+            Weights = tf.Variable(W,dtype=tf.float32)
+            biases = tf.Variable(b,dtype=tf.float32)
         threshold = tf.constant(value=0.5)
     with tf.name_scope('inference'):
         #X0 = tf.nn.embedding_lookup(embedding, X_holder0)
