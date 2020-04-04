@@ -53,7 +53,50 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     R.append('%0.4f'%auc)
     with open('data/test_result-'+mode+'.txt','w') as f:
         f.write('\n'.join(R))
+def modelStack(models):
+    S = []
+    L = []
+    T = []
+    for model in models:
+        with open('data/test_predict_'+model+'.txt','r') as f:
+            s = f.read().strip().split('\n')[1:]
+            s = [ss.split('\t') for ss in s]
+            scores = [float(ss[0]) for ss in s]
+            labels = [int(ss[1]) for ss in s]
+            texts = [ss[2] for ss in s]
+        S.append(scores)
+        L = labels
+        T = texts
+    S = np.array(S)
+    S = np.mean(S, axis=0)
+    A = ['预测值\t实际值\t文本']
+    for i in range(len(S)):
+        A.append('\t'.join(['%0.4f'%S[i],str(L[i]),texts[i]]))
+    with open('data/test_predict_'+'all'+'.txt','w') as f:
+        f.write('\n'.join(A))
+    y_p = S
+    yTst = L
+    auc = calAUC(y_p, yTst)
+    thr0 = [0.1 * i for i in range(10)]
+    R = ['\t'.join(['阈值', '准确率', '精度', '召回率'])]
+    for thr in thr0:
+        yp = [int(t > thr) for t in y_p]
+        TP = sum([yp[i] == yTst[i] for i in range(len(yp)) if yp[i] == 1])
+        TN = sum([yp[i] == yTst[i] for i in range(len(yp)) if yp[i] == 0])
+        FP = sum([yp[i] != yTst[i] for i in range(len(yp)) if yp[i] == 1])
+        FN = sum([yp[i] != yTst[i] for i in range(len(yp)) if yp[i] == 0])
+        acc = float(TP + TN) / len(yp)
+        pre = float(TP) / (TP + FP)
+        rec = float(TP) / (TP + FN)
+        R.append('\t'.join(['%0.1f' % thr, '%0.4f' % acc, '%0.4f' % pre, '%0.4f' % rec]))
+        print([thr, acc, pre, rec])
+    R.append('%0.4f' % auc)
+    with open('data/test_result-' + 'all' + '.txt', 'w') as f:
+        f.write('\n'.join(R))
 def main(mode):
+    if mode=='all':
+        modelStack(['lr','lr-word','lr-w2v-word','word','lr-w2v'])
+        return
     path_train = 'data/train.txt'
     path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
