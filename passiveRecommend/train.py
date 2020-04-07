@@ -91,7 +91,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
     config_train.feature_dim =feature_dim
     if mode=='lr' or mode=='word':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
-    if mode=='lr-dense':
+    if mode=='lr-dense' or mode=='lr-w2v-word-dense':
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(config_train)
     if mode=='lr-w2v' or mode=='lr-w2v-word' or mode=='lr-word':
         W_lr = np.load('lr-ckpt/W.npy')
