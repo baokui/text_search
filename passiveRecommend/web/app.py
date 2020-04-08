@@ -29,7 +29,7 @@ def test2():
         p = '%0.4f'%p
         result = str(result)
         app.logger.info("input:{}".format(data))
-        app.logger.info("output:\n{}".format('\n'.join(result)))
+        app.logger.info("result:{},prob:{}".format(result,p))
         response = {'message':'success','input':data,'result': result,'prob':p}
     except Exception as e:
         app.logger.error("error:",e)
