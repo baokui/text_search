@@ -23,6 +23,7 @@ class config_predict(object):
         self.path_vocab_word = self.rootpath+'data/vocab_word.txt'
         self.path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
         self.thr = 0.5
+        self.feature_dim = 8085
 class Config_train(object):
     def __init__(self):
         self.batch_size = 128

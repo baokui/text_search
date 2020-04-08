@@ -16,6 +16,7 @@ if len(sys.argv)>1:
 ConfigPredict = config_predict()
 ConfigTrain = Config_train()
 ConfigFeature= getConfig_feature(ConfigPredict)
+ConfigTrain.feature_dim = ConfigPredict.feature_dim
 X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy,session = getModel(ConfigTrain,ConfigPredict)
 @app.route('/api/gen', methods=['POST'])
 def test2():
