@@ -16,7 +16,11 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     print('number of positive/negative samples of testSet is {}/{}'.format(sum(yTst), len(yTst) - sum(yTst)))
     feature_dim = len(XTst[0])
     config_train.feature_dim =feature_dim
-    X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
+    if 'dense' in mode:
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(
+            config_train)
+    else:
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
     global_step = tf.train.get_or_create_global_step()
     train_op = tf.group(train_op, [tf.assign_add(global_step, 1)])
     saver = tf.train.Saver(max_to_keep=10)
