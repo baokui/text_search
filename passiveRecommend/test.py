@@ -136,6 +136,7 @@ def main(mode):
         config_feature['idf_word'] = idf
         config_feature['wordList'] = vocab
     config_train = Config_train()
+    config_train.keep_prob = 1.0
     testing(path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
