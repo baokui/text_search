@@ -15,6 +15,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     yTst = [int(s[1]) for s in S]
     print('number of positive/negative samples of testSet is {}/{}'.format(sum(yTst), len(yTst) - sum(yTst)))
     feature_dim = len(XTst[0])
+    print('feature dim is %d'%feature_dim)
     config_train.feature_dim =feature_dim
     if 'dense' in mode:
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(
