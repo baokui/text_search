@@ -3,8 +3,7 @@ import jieba
 import numpy as np
 import json
 import random
-def getdata_labeled():
-    path_data = 'D:\\项目\\输入法\\神配文数据\\召回标注\\大白狗语料1-10w召回标注327.xlsx'
+def getdata_labeled(path_data = 'D:\\项目\\输入法\\神配文数据\\召回标注\\大白狗语料1-10w召回标注327.xlsx'):
     workbook = xlrd.open_workbook(path_data)  # 打开excel文件
     table = workbook.sheet_by_name('Sheet1')  # 将文件内容表格化
     rows_num = table.nrows  # 获取行
@@ -119,3 +118,8 @@ def getVocab_words():
         json.dump(IDF,f)
     with open('data/vocab_word.txt','w',encoding='utf-8') as f:
         f.write('\n'.join(W))
+def getNewTest():
+    path_data = 'D:\\项目\\输入法\\神配文数据\\召回标注\\3.30-4.3语料清洗.xlsx'
+    S = getdata_labeled(path_data)
+    with open('passiveRecommend/data/test_0407.txt','w',encoding='utf-8') as f:
+        f.write('\n'.join(S))

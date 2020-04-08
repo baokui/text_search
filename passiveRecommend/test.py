@@ -98,12 +98,12 @@ def modelStack(models):
     R.append('%0.4f' % auc)
     with open('data/test_result-' + 'all' + '.txt', 'w') as f:
         f.write('\n'.join(R))
-def main(mode):
+def main(mode,path_test):
     if mode=='all':
         modelStack(['lr','lr-word','lr-w2v-word','word','lr-w2v'])
         return
     path_train = 'data/train.txt'
-    path_test = 'data/test.txt'
+    #path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
     path_vocab = 'data/vocab.txt'
     path_idf_word = 'data/idf_word.json'
@@ -139,5 +139,5 @@ def main(mode):
     config_train.keep_prob = 1.0
     testing(path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
-    mode = sys.argv[1]
-    main(mode)
+    mode,path_test = sys.argv[1:]
+    main(mode,path_test)
