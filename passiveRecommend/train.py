@@ -182,7 +182,8 @@ def main(mode,finetune=False):
         config_feature['idf_word'] = idf
         config_feature['wordList'] = vocab
     config_train = Config_train()
-
+    if finetune:
+        config_train.epochs = 3
     training(path_train,path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
