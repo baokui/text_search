@@ -145,8 +145,10 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
         step += 1
         data = next(iter)
     print('training over!')
-def main(mode):
+def main(mode,finetune=False):
     path_train = 'data/train.txt'
+    if finetune:
+        path_train = 'data/test_0407.txt'
     path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
     path_vocab = 'data/vocab.txt'
@@ -184,4 +186,5 @@ def main(mode):
     training(path_train,path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
-    main(mode)
+    finetune = sys.argv[2]=='1'
+    main(mode,finetune)
