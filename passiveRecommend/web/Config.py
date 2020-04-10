@@ -15,7 +15,7 @@ class config_predict(object):
     def __init__(self,model_config=None):  #__init__() 是类的初始化方法；它在类的实例化操作后 会自动调用，不需要手动调用；
         # 设置属性
         self.rootpath='/search/odin/guobk/streaming/vpa/text_search/passiveRecommend/'
-        self.path_ckpt = self.rootpath+'lr-w2v-word-dense-ckpt'
+        self.path_ckpt = self.rootpath+'lr-w2v-word-dense-ckpt0'
         self.mode = 'lr-w2v-word-dense-ckpt'
         self.path_idf = self.rootpath+'data/idf_char.json'
         self.path_vocab = self.rootpath+'data/vocab.txt'
