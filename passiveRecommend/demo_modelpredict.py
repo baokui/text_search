@@ -119,21 +119,29 @@ def getConfig():
         json.dump(config,f,ensure_ascii=False,indent=4)
 def predict(inputStr,words,config,w2v):
     x = getFeature(inputStr, words, config,w2v)
-    w = ['weight_w']
-    b = ['weight_b']
+    w = config['weight_w']
+    b = config['weight_b']
     logits = sum([w[i]*x[i] for i in range(len(w))])+b
     p = 1/(1+np.exp(-logits))
     return p
-def main(inputStr,path_config='modelconfig.json',path_w2v='w2v.file'):
+def main(inputStr,path_config='ModelConfig.json',path_w2v='w2v.file'):
+    # 导入模型各参赛
     with open(path_config,'r') as f:
         config = json.load(f)
     config['weight_w'] = [float(t) for t in config['weight_w']]
     config['weight_b'] = float(config['weight_b'])
     config['threshold'] = float(config['threshold'])
+    # 导入词向量
     w2v = getW2V(path_w2v)
+    # 对输入字符串分词，这个intention里应该有分词结果
     words = list(jieba.cut(inputStr))
+    # 预测
     y = predict(inputStr,words,config,w2v)
     r = int(y>config['threshold'])
     print('input string:%s\npredict value:%0.4f\nresult:%d'%(inputStr,y,r))
+    # demo结果：
+    # input string:你怎么一回事
+    # predict value:0.7924
+    # result:1
 if __name__=='__main__':
     main('你怎么一回事', path_config='ModelConfig.json', path_w2v='w2v.file')
