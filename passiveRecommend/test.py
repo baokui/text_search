@@ -43,7 +43,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     with open('data/test_predict_'+mode+'.txt','w') as f:
         f.write('\n'.join(X))
     thr0 = [0.1*i for i in range(10)]
-    thr0 += [0.91+0.01*i for i in range(10)]
+    thr0 += [0.91+0.01*i for i in range(9)]
     R = ['\t'.join(['阈值','准确率','精度','召回率'])]
     for thr in thr0:
         yp = [int(t>thr) for t in y_p]
@@ -55,8 +55,9 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
         pre = float(TP)/(TP+FP)
         rec = float(TP)/(TP+FN)
         R.append('\t'.join(['%0.1f'%thr,'%0.4f'%acc,'%0.4f'%pre,'%0.4f'%rec]))
-        print([thr,acc,pre,rec])
-    R.append('%0.4f'%auc)
+        print(R)
+    print('auc=%0.4f'%auc)
+    R.append('auc=%0.4f'%auc)
     with open('data/test_result-'+mode+'.txt','w') as f:
         f.write('\n'.join(R))
 def modelStack(models):
