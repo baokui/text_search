@@ -7,7 +7,7 @@ import os
 import json
 import sys
 from train import getW2V
-def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
+def testing(path_test,config_feature,path_ckpt,config_train,mode='lr',name=''):
     with open(path_test, 'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
@@ -40,7 +40,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     X = ['\t'.join(['预测值','实际值','文本'])]
     for i in range(len(S)):
         X.append('%0.4f'%y_p[i]+'\t'+S[i][1]+'\t'+S[i][0])
-    with open('data/test_predict_'+mode+'.txt','w') as f:
+    with open('data/test_predict_'+mode+name+'.txt','w') as f:
         f.write('\n'.join(X))
     thr0 = [0.1*i for i in range(10)]
     thr0 += [0.91+0.01*i for i in range(9)]
@@ -58,7 +58,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
         print('\n'.join(R))
     print('auc=%0.4f'%auc)
     R.append('auc=%0.4f'%auc)
-    with open('data/test_result-'+mode+'.txt','w') as f:
+    with open('data/test_result-'+mode+name+'+.txt','w') as f:
         f.write('\n'.join(R))
 def modelStack(models):
     S = []
@@ -100,7 +100,7 @@ def modelStack(models):
     R.append('%0.4f' % auc)
     with open('data/test_result-' + 'all' + '.txt', 'w') as f:
         f.write('\n'.join(R))
-def main(mode,path_test):
+def main(mode,path_test,name):
     if mode=='all':
         modelStack(['lr','lr-word','lr-w2v-word','word','lr-w2v'])
         return
@@ -139,7 +139,7 @@ def main(mode,path_test):
         config_feature['wordList'] = vocab
     config_train = Config_train()
     config_train.keep_prob = 1.0
-    testing(path_test, config_feature, path_ckpt, config_train,mode=mode)
+    testing(path_test, config_feature, path_ckpt, config_train,mode=mode,name=name)
 if __name__=='__main__':
-    mode,path_test = sys.argv[1:]
-    main(mode,path_test)
+    mode,path_test,name = sys.argv[1:]
+    main(mode,path_test,name)
