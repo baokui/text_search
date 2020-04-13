@@ -1,11 +1,12 @@
 import jieba
 import numpy as np
+import json
 def getFeature(Str,words,config):
     x = np.zeros((config['len_feature'],))
     idx = 0
 
     #提取基于字符的IDF特征
-    x[idx] = getCharIdf(Str,config['idf'])
+    x[idx] = getCharIdf(Str,config['idf_char'])
     idx += 1
 
     #提取字符串长度特征
@@ -56,7 +57,7 @@ def getPunExist(Str,punc=[]):
         if s in punc:
             r = 1
             break
-    return [r]
+    return r
 def getCharIdf(Str,idf):
     r = 0
     for s in Str:
@@ -65,7 +66,7 @@ def getCharIdf(Str,idf):
         else:
             r+=idf['<UNK>']
     r = r/float(len(Str))
-    return [r]
+    return r
 def getCharFeature(Str,charList):
     r = [0 for _ in range(len(charList))]
     for s in Str:
@@ -74,6 +75,42 @@ def getCharFeature(Str,charList):
         else:
             r[charList.index('<UNK>')] = 1.0
     return r
+def getW2V(path_w2v):
+    print('reading w2v file...')
+    f = open(path_w2v,'r')
+    D = {}
+    for line in f:
+        s = line.strip().split(' ')
+        D[s[0]] = [float(t) for t in s[1:]]
+    f.close()
+    print('complete w2v reading')
+    return D
+def getConfig():
+    config = {}
+    config['len_feature'] = 8085
+    with open('../data/idf_char.json','r') as f:
+        config['idf_char'] = json.load(f)
+    with open('../data/vocab.txt', 'r') as f:
+        config['charList'] = f.read().strip().split('\n')
+    with open('../data/vocab_word.txt', 'r') as f:
+        config['wordList'] = f.read().strip().split('\n')
+    with open('../data/idf_word.json','r') as f:
+        config['idf_word'] = json.load(f)
+    config['w2v'] = getW2V('/search/odin/guobk/streaming/vpa/word2vec128/model-mean')
+    config['dim_v'] = 128
+    from modeling import simple_lr
+    import tensorflow as tf
+    path_ckpt = 'lr-w2v-word-ckpt-used'
+    X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(config['len_feature'])
+    saver = tf.train.Saver(max_to_keep=10)
+    session = tf.Session()
+    ckpt_file = tf.train.latest_checkpoint(path_ckpt)
+    saver.restore(session, ckpt_file)
+    reader = tf.train.NewCheckpointReader(ckpt_file)
+    all_variables = reader.get_variable_to_shape_map()
+    w0 = reader.get_tensor("conv0/W")
+    with open('data.json','w') as f:
+        json.dump(config,f,ensure_ascii=False,indent=4)
 def predict(inputStr):
     x = getFeature(inputStr, config_feature)
     yTst = [int(s[1]) for s in S]
