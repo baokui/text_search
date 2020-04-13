@@ -16,7 +16,7 @@ class config_predict(object):
         # 设置属性
         self.rootpath='/search/odin/guobk/streaming/vpa/text_search/passiveRecommend/'
         self.path_ckpt = self.rootpath+'lr-w2v-word-ckpt-used'
-        self.mode = 'lr-w2v-word-dense-ckpt'
+        self.mode = 'lr-w2v-word-ckpt'
         self.path_idf = self.rootpath+'data/idf_char.json'
         self.path_vocab = self.rootpath+'data/vocab.txt'
         self.path_idf_word = self.rootpath+'data/idf_word.json'
