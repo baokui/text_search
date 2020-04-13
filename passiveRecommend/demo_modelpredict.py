@@ -1,7 +1,7 @@
 import jieba
 import numpy as np
 import json
-def getFeature(Str,words,config):
+def getFeature(Str,words,config,w2v):
     x = np.zeros((config['len_feature'],))
     idx = 0
 
@@ -33,7 +33,7 @@ def getFeature(Str,words,config):
     idx += 1
 
     #提取word2vector特征，dim=128
-    t = getSentV(words,config['w2v'],config['dim_v'])
+    t = getSentV(words,w2v,config['dim_v'])
     x[idx:idx + len(t)] = t
     idx += len(t)
 
@@ -88,15 +88,15 @@ def getW2V(path_w2v):
 def getConfig():
     config = {}
     config['len_feature'] = 8085
-    with open('../data/idf_char.json','r') as f:
+    with open('./data/idf_char.json','r') as f:
         config['idf_char'] = json.load(f)
-    with open('../data/vocab.txt', 'r') as f:
+    with open('./data/vocab.txt', 'r') as f:
         config['charList'] = f.read().strip().split('\n')
-    with open('../data/vocab_word.txt', 'r') as f:
+    with open('./data/vocab_word.txt', 'r') as f:
         config['wordList'] = f.read().strip().split('\n')
-    with open('../data/idf_word.json','r') as f:
+    with open('./data/idf_word.json','r') as f:
         config['idf_word'] = json.load(f)
-    config['w2v'] = getW2V('/search/odin/guobk/streaming/vpa/word2vec128/model-mean')
+    config['w2v'] = './data/model-mean'
     config['dim_v'] = 128
     from modeling import simple_lr
     import tensorflow as tf
@@ -108,54 +108,32 @@ def getConfig():
     saver.restore(session, ckpt_file)
     reader = tf.train.NewCheckpointReader(ckpt_file)
     all_variables = reader.get_variable_to_shape_map()
-    w0 = reader.get_tensor("conv0/W")
-    with open('data.json','w') as f:
+    w0 = reader.get_tensor("parameters/Variable")
+    b0 = reader.get_tensor("parameters/Variable_1")
+    w = list(w0[:,0])
+    b = b0[0][0]
+    config['weight_w'] = ['%0.8f'%t for t in w]
+    config['weight_b'] = '%0.8f'%b
+    config['threshold'] = '0.5'
+    with open('model.json','w') as f:
         json.dump(config,f,ensure_ascii=False,indent=4)
-def predict(inputStr):
-    x = getFeature(inputStr, config_feature)
-    yTst = [int(s[1]) for s in S]
-    print('number of positive/negative samples of testSet is {}/{}'.format(sum(yTst), len(yTst) - sum(yTst)))
-    feature_dim = len(XTst[0])
-    print('feature dim is %d'%feature_dim)
-    config_train.feature_dim =feature_dim
-    if 'dense' in mode:
-        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(
-            config_train)
-    else:
-        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(feature_dim)
-    global_step = tf.train.get_or_create_global_step()
-    train_op = tf.group(train_op, [tf.assign_add(global_step, 1)])
-    saver = tf.train.Saver(max_to_keep=10)
-    session = tf.Session()
-    ckpt_file = tf.train.latest_checkpoint(path_ckpt)
-    saver.restore(session, ckpt_file)
-    print('restore model from %s'%ckpt_file)
-    learning_rate_ = config_train.learning_rate
-    x0_test,y0_test = XTst,yTst
-    y0_test = np.array(y0_test)
-    y0_test = np.reshape(y0_test, (len(y0_test), 1))
-    y_p0 = session.run(predict_y,
-                       feed_dict={X_holder: x0_test, y_holder: y0_test, learning_rate: learning_rate_})
-    y_p = [tmp[0] for tmp in y_p0]
-    auc = calAUC(y_p,y0_test)
-    X = ['\t'.join(['预测值','实际值','文本'])]
-    for i in range(len(S)):
-        X.append('%0.4f'%y_p[i]+'\t'+S[i][1]+'\t'+S[i][0])
-    with open('data/test_predict_'+mode+'.txt','w') as f:
-        f.write('\n'.join(X))
-    thr0 = [0.1*i for i in range(10)]
-    R = ['\t'.join(['阈值','准确率','精度','召回率'])]
-    for thr in thr0:
-        yp = [int(t>thr) for t in y_p]
-        TP = sum([yp[i]==yTst[i] for i in range(len(yp)) if yp[i]==1])
-        TN = sum([yp[i]==yTst[i] for i in range(len(yp)) if yp[i]==0])
-        FP = sum([yp[i]!=yTst[i] for i in range(len(yp)) if yp[i]==1])
-        FN = sum([yp[i]!=yTst[i] for i in range(len(yp)) if yp[i]==0])
-        acc = float(TP+TN)/len(yp)
-        pre = float(TP)/(TP+FP)
-        rec = float(TP)/(TP+FN)
-        R.append('\t'.join(['%0.1f'%thr,'%0.4f'%acc,'%0.4f'%pre,'%0.4f'%rec]))
-        print([thr,acc,pre,rec])
-    R.append('%0.4f'%auc)
-    with open('data/test_result-'+mode+'.txt','w') as f:
-        f.write('\n'.join(R))
+def predict(inputStr,words,config,w2v):
+    x = getFeature(inputStr, words, config,w2v)
+    w = ['weight_w']
+    b = ['weight_b']
+    logits = sum([w[i]*x[i] for i in range(len(w))])+b
+    p = 1/(1+np.exp(-logits))
+    return p
+def main(inputStr,path_config='modelconfig.json',path_w2v='w2v.file'):
+    with open(path_config,'r') as f:
+        config = json.load(f)
+    config['weight_w'] = [float(t) for t in config['weight_w']]
+    config['weight_b'] = float(config['weight_b'])
+    config['threshold'] = float(config['threshold'])
+    w2v = getW2V(path_w2v)
+    words = list(jieba.cut(inputStr))
+    y = predict(inputStr,words,config,w2v)
+    r = int(y>config['threshold'])
+    print('input string:%s\npredict value:%0.4f\nresult:%d'%(inputStr,y,r))
+if __name__=='__main__':
+    main('你怎么一回事', path_config='ModelConfig.json', path_w2v='w2v.file')
