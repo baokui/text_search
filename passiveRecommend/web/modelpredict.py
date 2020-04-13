@@ -25,3 +25,10 @@ def predicting(inputStr, config_feature, X_holder, y_holder, learning_rate, pred
     p = y_p0[0][0]
     y = int(p>thr)
     return p,y
+def predict(inputStr,words,config,w2v):
+    x = getFeature(inputStr, words, config,w2v)
+    w = config['weight_w']
+    b = config['weight_b']
+    logits = sum([w[i]*x[i] for i in range(len(w))])+b
+    p = 1/(1+np.exp(-logits))
+    return p
