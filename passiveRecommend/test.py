@@ -109,7 +109,7 @@ def main(mode,path_test):
     path_idf_word = 'data/idf_word.json'
     path_vocab_word = 'data/vocab_word.txt'
     path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
-    path_ckpt = mode + '-ckpt'
+    path_ckpt = mode + '-ckpt'+'-used'
     config_feature = {}
     config_feature['use_sentLen'] = True
     config_feature['use_puncExist'] = True
