@@ -101,8 +101,11 @@ def getConfig(path_target,path_ckpt):
     from modeling import simple_lr,simple_lr_dense
     import tensorflow as tf
     if 'dense' in path_ckpt:
+        from train import Config_train
+        config_train = Config_train()
+        config_train.feature_dim = config['len_feature']
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(
-            config)
+            config_train)
     else:
         X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(config['len_feature'])
     saver = tf.train.Saver(max_to_keep=10)
@@ -112,7 +115,8 @@ def getConfig(path_target,path_ckpt):
     reader = tf.train.NewCheckpointReader(ckpt_file)
     all_variables = reader.get_variable_to_shape_map()
     if 'dense' in path_ckpt:
-        pass
+        w0 = reader.get_tensor('dense/kernel')
+        w0 = reader.get_tensor("parameters/Variable")
     else:
         w0 = reader.get_tensor("parameters/Variable")
         b0 = reader.get_tensor("parameters/Variable_1")

@@ -22,7 +22,7 @@ class config_predict(object):
         self.path_idf_word = self.rootpath+'data/idf_word.json'
         self.path_vocab_word = self.rootpath+'data/vocab_word.txt'
         self.path_w2v = '/search/odin/guobk/streaming/vpa/word2vec128/model-mean'
-        self.thr = 0.5
+        self.thr = 0.8
         self.feature_dim = 8085
 class Config_train(object):
     def __init__(self):

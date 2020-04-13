@@ -16,7 +16,7 @@ if len(sys.argv)>1:
    port = int(sys.argv[1])
 ConfigPredict = config_predict()
 ConfigTrain = Config_train()
-ConfigFeature= getConfig_feature(ConfigPredict)
+ConfigFeature = getConfig_feature(ConfigPredict)
 ConfigTrain.feature_dim = ConfigPredict.feature_dim
 path_config='../demo/ModelConfig.json'
 path_w2v='../demo/w2v.file'
@@ -25,7 +25,8 @@ with open(path_config,'r') as f:
     config = json.load(f)
 config['weight_w'] = [float(t) for t in config['weight_w']]
 config['weight_b'] = float(config['weight_b'])
-config['threshold'] = float(config['threshold'])
+#config['threshold'] = float(config['threshold'])
+config['threshold'] = config_predict.thr
 # 导入词向量
 w2v = getW2V(path_w2v)
 #X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy,session = getModel(ConfigTrain,ConfigPredict)
