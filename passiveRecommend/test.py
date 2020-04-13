@@ -43,6 +43,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr'):
     with open('data/test_predict_'+mode+'.txt','w') as f:
         f.write('\n'.join(X))
     thr0 = [0.1*i for i in range(10)]
+    thr0 += [0.91+0.01*i for i in range(10)]
     R = ['\t'.join(['阈值','准确率','精度','召回率'])]
     for thr in thr0:
         yp = [int(t>thr) for t in y_p]

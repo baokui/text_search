@@ -85,7 +85,7 @@ def getW2V(path_w2v):
     f.close()
     print('complete w2v reading')
     return D
-def getConfig():
+def getConfig(path_target,path_ckpt):
     config = {}
     config['len_feature'] = 8085
     with open('./data/idf_char.json','r') as f:
@@ -98,24 +98,30 @@ def getConfig():
         config['idf_word'] = json.load(f)
     config['w2v'] = './data/model-mean'
     config['dim_v'] = 128
-    from modeling import simple_lr
+    from modeling import simple_lr,simple_lr_dense
     import tensorflow as tf
-    path_ckpt = 'lr-w2v-word-ckpt-used'
-    X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(config['len_feature'])
+    if 'dense' in path_ckpt:
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr_dense(
+            config)
+    else:
+        X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy = simple_lr(config['len_feature'])
     saver = tf.train.Saver(max_to_keep=10)
     session = tf.Session()
     ckpt_file = tf.train.latest_checkpoint(path_ckpt)
     saver.restore(session, ckpt_file)
     reader = tf.train.NewCheckpointReader(ckpt_file)
     all_variables = reader.get_variable_to_shape_map()
-    w0 = reader.get_tensor("parameters/Variable")
-    b0 = reader.get_tensor("parameters/Variable_1")
-    w = list(w0[:,0])
-    b = b0[0][0]
-    config['weight_w'] = ['%0.8f'%t for t in w]
-    config['weight_b'] = '%0.8f'%b
-    config['threshold'] = '0.5'
-    with open('model.json','w') as f:
+    if 'dense' in path_ckpt:
+        pass
+    else:
+        w0 = reader.get_tensor("parameters/Variable")
+        b0 = reader.get_tensor("parameters/Variable_1")
+        w = list(w0[:,0])
+        b = b0[0][0]
+        config['weight_w'] = ['%0.8f'%t for t in w]
+        config['weight_b'] = '%0.8f'%b
+        config['threshold'] = '0.5'
+    with open(path_target,'w') as f:
         json.dump(config,f,ensure_ascii=False,indent=4)
 def predict(inputStr,words,config,w2v):
     x = getFeature(inputStr, words, config,w2v)
