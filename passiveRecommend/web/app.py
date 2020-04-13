@@ -26,7 +26,7 @@ with open(path_config,'r') as f:
 config['weight_w'] = [float(t) for t in config['weight_w']]
 config['weight_b'] = float(config['weight_b'])
 #config['threshold'] = float(config['threshold'])
-config['threshold'] = config_predict.thr
+config['threshold'] = ConfigPredict.thr
 # 导入词向量
 w2v = getW2V(path_w2v)
 #X_holder, y_holder, learning_rate, predict_y, loss, optimizer, train_op, grads, accuracy,session = getModel(ConfigTrain,ConfigPredict)
