@@ -8,7 +8,6 @@ import logging
 import jieba
 from Config import config_predict,Config_train,getConfig_feature,getW2V
 from modelpredict import predict
-from demo_modelpredict import predict
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 port = 5000
