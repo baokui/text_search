@@ -58,7 +58,7 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr',name=''):
         print('\n'.join(R))
     print('auc=%0.4f'%auc)
     R.append('auc=%0.4f'%auc)
-    with open('data/test_result-'+mode+name+'+.txt','w') as f:
+    with open('data/test_result-'+mode+name+'.txt','w') as f:
         f.write('\n'.join(R))
 def modelStack(models):
     S = []
@@ -95,7 +95,7 @@ def modelStack(models):
         acc = float(TP + TN) / len(yp)
         pre = float(TP) / (TP + FP)
         rec = float(TP) / (TP + FN)
-        R.append('\t'.join(['%0.1f' % thr, '%0.4f' % acc, '%0.4f' % pre, '%0.4f' % rec]))
+        R.append('\t'.join(['%0.2f' % thr, '%0.4f' % acc, '%0.4f' % pre, '%0.4f' % rec]))
         print([thr, acc, pre, rec])
     R.append('%0.4f' % auc)
     with open('data/test_result-' + 'all' + '.txt', 'w') as f:
