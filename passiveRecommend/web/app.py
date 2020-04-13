@@ -6,8 +6,7 @@ from datetime import datetime
 import time
 import logging
 import jieba
-from train import getW2V
-from Config import config_predict,Config_train,getConfig_feature
+from Config import config_predict,Config_train,getConfig_feature,getW2V
 from modelpredict import getModel,predicting
 from demo_modelpredict import predict
 app = Flask(__name__)
