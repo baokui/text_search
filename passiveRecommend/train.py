@@ -120,6 +120,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
     step = 0
     epoch = 0
     print('training begin')
+    auc0 = 0
     while data!='__RETURN__':
         if data=='__STOP__':
             data = next(iter)
@@ -130,7 +131,6 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
         y0 = np.reshape(y0,(len(y0),1))
         if step%config_train.step_saveckpt==0:
             saver.save(session, os.path.join(path_ckpt, 'model.ckpt'), global_step=global_step)
-        if step%config_train.step_printlog==0:
             loss_ = session.run(loss, feed_dict={X_holder: x0, y_holder: y0, learning_rate: learning_rate_})
             datatest = next(iter_test)
             x0_test,y0_test = datatest
@@ -140,15 +140,19 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
                                feed_dict={X_holder: x0_test, y_holder: y0_test, learning_rate: learning_rate_})
             y_p = [tmp[0] for tmp in y_p0]
             auc = calAUC(y_p,y0_test)
+            if auc>auc0:
+                auc0 = auc
+                path_backup = path_ckpt+'-backup/'
+                tmpfile = tf.train.latest_checkpoint(path_ckpt)
+                cfile = tmpfile + ".*"
+                cmdstr = "cp " + cfile + " " + path_backup
+                os.system(cmdstr)
             print('epoch:{}-step:{}-auc_test:{}-loss_trn:{}'.format(epoch,step,'%0.3f'%auc,'%0.4f'%loss_))
         session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
         step += 1
         data = next(iter)
     print('training over!')
-def main(mode,finetune=False):
-    path_train = 'data/train.txt'
-    if finetune:
-        path_train = 'data/test_0407.txt'
+def main(mode,path_train):
     path_test = 'data/test.txt'
     path_idf = 'data/idf_char.json'
     path_vocab = 'data/vocab.txt'
@@ -182,10 +186,8 @@ def main(mode,finetune=False):
         config_feature['idf_word'] = idf
         config_feature['wordList'] = vocab
     config_train = Config_train()
-    if finetune:
-        config_train.epochs = 3
     training(path_train,path_test, config_feature, path_ckpt, config_train,mode=mode)
 if __name__=='__main__':
     mode = sys.argv[1]
-    finetune = sys.argv[2]=='1'
-    main(mode,finetune)
+    path_train = sys.argv[2]
+    main(mode,path_train)
