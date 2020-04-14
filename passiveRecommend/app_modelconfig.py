@@ -9,7 +9,7 @@ port = int(sys.argv[1])
 path_config = sys.argv[2]
 with open(path_config,'r') as f:
     config = json.load(f)
-@app.route('/api/gen', methods=['POST'])
+@app.route('/api/gen', methods=['get'])
 def test2():
     try:
         response = config
