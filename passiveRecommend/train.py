@@ -147,6 +147,7 @@ def training(path_train,path_test,config_feature,path_ckpt,config_train,mode='lr
                 cfile = tmpfile + ".*"
                 cmdstr = "cp " + cfile + " " + path_backup
                 os.system(cmdstr)
+                print('****ckpt updated****')
             print('epoch:{}-step:{}-auc_test:{}-loss_trn:{}'.format(epoch,step,'%0.3f'%auc,'%0.4f'%loss_))
         session.run(train_op,feed_dict={X_holder:x0, y_holder:y0, learning_rate:learning_rate_})
         step += 1

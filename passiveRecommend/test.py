@@ -7,7 +7,7 @@ import os
 import json
 import sys
 from train import getW2V
-def testing(path_test,config_feature,path_ckpt,config_train,mode='lr',name=''):
+def testing(path_test,config_feature,path_ckpt,config_train,ckpt_file='',mode='lr',name=''):
     with open(path_test, 'r') as f:
         S = f.read().strip().split('\n')
     S = [s.split('\t') for s in S]
@@ -26,7 +26,8 @@ def testing(path_test,config_feature,path_ckpt,config_train,mode='lr',name=''):
     train_op = tf.group(train_op, [tf.assign_add(global_step, 1)])
     saver = tf.train.Saver(max_to_keep=10)
     session = tf.Session()
-    ckpt_file = tf.train.latest_checkpoint(path_ckpt)
+    if len(ckpt_file)==0:
+        ckpt_file = tf.train.latest_checkpoint(path_ckpt)
     saver.restore(session, ckpt_file)
     print('restore model from %s'%ckpt_file)
     learning_rate_ = config_train.learning_rate
@@ -100,7 +101,7 @@ def modelStack(models):
     R.append('%0.4f' % auc)
     with open('data/test_result-' + 'all' + '.txt', 'w') as f:
         f.write('\n'.join(R))
-def main(mode,path_test,name):
+def main(mode,path_test,name,ckpt_file=''):
     if mode=='all':
         modelStack(['lr','lr-word','lr-w2v-word','word','lr-w2v'])
         return
@@ -139,7 +140,7 @@ def main(mode,path_test,name):
         config_feature['wordList'] = vocab
     config_train = Config_train()
     config_train.keep_prob = 1.0
-    testing(path_test, config_feature, path_ckpt, config_train,mode=mode,name=name)
+    testing(path_test, config_feature, path_ckpt, config_train,ckpt_file=ckpt_file,mode=mode,name=name)
 if __name__=='__main__':
-    mode,path_test,name = sys.argv[1:]
-    main(mode,path_test,name)
+    mode,path_test,name,ckpt_file = sys.argv[1:]
+    main(mode,path_test,name,ckpt_file=ckpt_file)
